@@ -48,51 +48,49 @@ class SystemdInputTest < Test::Unit::TestCase
 
   def test_reading_from_the_journal_tail
     d = create_driver(base_config)
-    d.run
-    assert_equal d.emits.size, 1
-    assert_equal d.emits.first, [
+    d.expect_emit(
       'test',
       1_364_519_243,
-      { '_UID' => '0',
-        '_GID' => '0',
-        '_BOOT_ID' => '4737ffc504774b3ba67020bc947f1bc0',
-        '_MACHINE_ID' => 'bb9d0a52a41243829ecd729b40ac0bce',
-        '_HOSTNAME' => 'arch',
-        'PRIORITY' => '5',
-        '_TRANSPORT' => 'syslog',
-        'SYSLOG_FACILITY' => '10',
-        'SYSLOG_IDENTIFIER' => 'login',
-        '_PID' => '141',
-        '_COMM' => 'login',
-        '_EXE' => '/bin/login',
-        '_AUDIT_SESSION' => '1',
-        '_AUDIT_LOGINUID' => '0',
-        'MESSAGE' => 'ROOT LOGIN ON tty1',
-        '_CMDLINE' => 'login -- root      ',
-        '_SYSTEMD_CGROUP' => '/user/root/1',
-        '_SYSTEMD_SESSION' => '1',
-        '_SYSTEMD_OWNER_UID' => '0',
-        '_SOURCE_REALTIME_TIMESTAMP' => '1364519243563178' },
-    ]
+      '_UID' => '0',
+      '_GID' => '0',
+      '_BOOT_ID' => '4737ffc504774b3ba67020bc947f1bc0',
+      '_MACHINE_ID' => 'bb9d0a52a41243829ecd729b40ac0bce',
+      '_HOSTNAME' => 'arch',
+      'PRIORITY' => '5',
+      '_TRANSPORT' => 'syslog',
+      'SYSLOG_FACILITY' => '10',
+      'SYSLOG_IDENTIFIER' => 'login',
+      '_PID' => '141',
+      '_COMM' => 'login',
+      '_EXE' => '/bin/login',
+      '_AUDIT_SESSION' => '1',
+      '_AUDIT_LOGINUID' => '0',
+      'MESSAGE' => 'ROOT LOGIN ON tty1',
+      '_CMDLINE' => 'login -- root      ',
+      '_SYSTEMD_CGROUP' => '/user/root/1',
+      '_SYSTEMD_SESSION' => '1',
+      '_SYSTEMD_OWNER_UID' => '0',
+      '_SOURCE_REALTIME_TIMESTAMP' => '1364519243563178',
+    )
+    d.run
   end
 
   def test_pos_file_is_written
     d = create_driver(pos_config)
     d.run
-    sleep 1
     assert_equal File.read(pos_path), 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4' # rubocop:disable Metrics/LineLength
   end
 
   def test_reading_from_head
     d = create_driver(head_config)
     d.run
-    assert_equal d.emits.size, 461
+    assert_equal 461, d.emits.size
   end
 
   def test_reading_with_filters
     d = create_driver(filter_config)
     d.run
-    assert_equal d.emits.size, 3
+    assert_equal 3, d.emits.size
   end
 
   def test_reading_from_a_pos
@@ -101,7 +99,7 @@ class SystemdInputTest < Test::Unit::TestCase
     file.close
     d = create_driver(head_config)
     d.run
-    assert_equal d.emits.size, 143
+    assert_equal 143, d.emits.size
   end
 
   def test_reading_from_an_invalid_pos
