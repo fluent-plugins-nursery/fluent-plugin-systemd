@@ -1,0 +1,21 @@
+FROM quay.io/assemblyline/buildpack_deps:15.10
+
+RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu vivid main" | tee /etc/apt/sources.list.d/ruby-ng.list \
+      && echo "deb-src http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu vivid main" | tee -a /etc/apt/sources.list.d/ruby-ng.list \
+      && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C3173AA6 \
+      && apt-get update -q && apt-get install -qy --no-install-recommends \
+        ruby2.2 \
+        ruby2.2-dev \
+        libsystemd-dev \
+      && apt-get clean \
+      && rm -rf /var/lib/apt/lists/* \
+      && truncate -s 0 /var/log/*log \
+      && gem install bundler
+
+WORKDIR /usr/local/src
+
+COPY Gemfile ./
+COPY fluent-plugin-systemd.gemspec ./
+RUN bundle install -j4 -r3
+
+CMD bundle exec rake
