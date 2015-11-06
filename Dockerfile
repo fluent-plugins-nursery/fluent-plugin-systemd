@@ -18,5 +18,4 @@ COPY Gemfile ./
 COPY fluent-plugin-systemd.gemspec ./
 RUN bundle install -j4 -r3
 COPY . .
-
-CMD bundle exec rake
+RUN bundle exec rake

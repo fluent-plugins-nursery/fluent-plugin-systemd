@@ -13,12 +13,8 @@ task build: :test
 task tests: :reevoocop
 
 namespace :docker do
-  task :build do
-    sh 'docker build -t fluent-plugin-systemd .'
-  end
-
-  task test: :build do
-    sh 'docker run -ti --rm fluent-plugin-systemd'
+  task :test do
+    sh 'docker build .'
   end
 end
 
