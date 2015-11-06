@@ -2,4 +2,3 @@ language: ruby
 sudo: required
 services:
   - docker
-install: true

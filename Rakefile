@@ -18,7 +18,7 @@ namespace :docker do
   end
 
   task test: :build do
-    sh 'docker run --rm -ti -v `pwd`:/usr/local/src fluent-plugin-systemd'
+    sh 'docker run -ti --rm fluent-plugin-systemd'
   end
 end
 

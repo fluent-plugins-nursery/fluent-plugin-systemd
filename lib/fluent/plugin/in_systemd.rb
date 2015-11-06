@@ -51,7 +51,7 @@ module Fluent
 
     def watch
       while running
-        next unless journal.wait
+        next unless journal.wait(1_000_000)
         while journal.move_next && running
           yield journal.current_entry
           pos_writer.update(journal.cursor)
