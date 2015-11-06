@@ -10,7 +10,7 @@ class SystemdInputTest < Test::Unit::TestCase
     @base_config = %(
       tag test
       path test/fixture
-        )
+    )
 
     pos_dir = Dir.mktmpdir('posdir')
 
@@ -18,15 +18,15 @@ class SystemdInputTest < Test::Unit::TestCase
 
     @pos_config = base_config + %(
       pos_file #{@pos_path}
-        )
+    )
 
     @head_config = @pos_config + %(
       read_from_head true
-        )
+    )
 
     @filter_config = @head_config + %(
       filters [{ "_SYSTEMD_UNIT": "systemd-journald.service" }]
-        )
+    )
   end
 
   attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config, :filter_config
