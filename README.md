@@ -37,7 +37,7 @@ Path to the systemd journal, defaults to `/var/log/journal`
 
 **filters**
 
-Array of filters, see [here](http://www.rubydoc.info/gems/systemd-journal/Systemd%2FJournal%2FFilterable%3Afilter) for futher
+Array of filters, see [here](http://www.rubydoc.info/gems/systemd-journal/Systemd%2FJournal%2FFilterable%3Afilter) for further
 documentation, defaults to no filtering.
 
 **pos file**
@@ -46,7 +46,7 @@ Path to pos file, stores the journald cursor. File is created if does not exist.
 
 **read_from_head**
 
-If true reads all avalible journal from head, otherwise starts reading from tail,
+If true reads all available journal from head, otherwise starts reading from tail,
  ignored if pos file exists. Defaults to false.
 
 **tag**
