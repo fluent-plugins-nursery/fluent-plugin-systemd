@@ -9,6 +9,7 @@ module Fluent
     config_param :filters, :array, default: []
     config_param :pos_file, :string, default: nil
     config_param :read_from_head, :bool, default: false
+    config_param :strip_underscores, :bool, default: false
     config_param :tag, :string
 
     attr_reader :tag
@@ -37,7 +38,7 @@ module Fluent
 
     private
 
-    attr_reader :journal, :running, :lock, :cursor, :path, :pos_writer
+    attr_reader :journal, :running, :lock, :cursor, :path, :pos_writer, :strip_underscores
 
     def run
       watch do |entry|
@@ -46,7 +47,8 @@ module Fluent
     end
 
     def formatted(entry)
-      entry.to_h
+      return entry.to_h unless strip_underscores
+      Hash[entry.to_h.map { |k, v| [k.gsub(/\A_+/, ''), v] }]
     end
 
     def watch

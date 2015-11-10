@@ -2,7 +2,7 @@ require_relative '../helper'
 require 'tempfile'
 require 'fluent/plugin/in_systemd'
 
-class SystemdInputTest < Test::Unit::TestCase
+class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLength
 
   def setup
     Fluent::Test.setup
@@ -10,6 +10,10 @@ class SystemdInputTest < Test::Unit::TestCase
     @base_config = %(
       tag test
       path test/fixture
+    )
+
+    @strip_config = base_config + %(
+      strip_underscores true
     )
 
     pos_dir = Dir.mktmpdir('posdir')
@@ -29,7 +33,7 @@ class SystemdInputTest < Test::Unit::TestCase
     )
   end
 
-  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config, :filter_config
+  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config, :filter_config, :strip_config
 
   def create_driver(config)
     Fluent::Test::InputTestDriver.new(Fluent::SystemdInput).configure(config)
@@ -74,6 +78,36 @@ class SystemdInputTest < Test::Unit::TestCase
     )
     d.run
   end
+
+  def test_reading_from_the_journal_tail_with_strip_underscores
+    d = create_driver(strip_config)
+    d.expect_emit(
+      'test',
+      1_364_519_243,
+      'UID' => '0',
+      'GID' => '0',
+      'BOOT_ID' => '4737ffc504774b3ba67020bc947f1bc0',
+      'MACHINE_ID' => 'bb9d0a52a41243829ecd729b40ac0bce',
+      'HOSTNAME' => 'arch',
+      'PRIORITY' => '5',
+      'TRANSPORT' => 'syslog',
+      'SYSLOG_FACILITY' => '10',
+      'SYSLOG_IDENTIFIER' => 'login',
+      'PID' => '141',
+      'COMM' => 'login',
+      'EXE' => '/bin/login',
+      'AUDIT_SESSION' => '1',
+      'AUDIT_LOGINUID' => '0',
+      'MESSAGE' => 'ROOT LOGIN ON tty1',
+      'CMDLINE' => 'login -- root      ',
+      'SYSTEMD_CGROUP' => '/user/root/1',
+      'SYSTEMD_SESSION' => '1',
+      'SYSTEMD_OWNER_UID' => '0',
+      'SOURCE_REALTIME_TIMESTAMP' => '1364519243563178',
+    )
+    d.run
+  end
+
 
   def test_pos_file_is_written
     d = create_driver(pos_config)
