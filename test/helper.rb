@@ -1,2 +1,2 @@
-require 'test/unit'
-require 'fluent/test'
+require "test/unit"
+require "fluent/test"
