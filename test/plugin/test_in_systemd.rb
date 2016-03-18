@@ -1,6 +1,6 @@
-require_relative '../helper'
-require 'tempfile'
-require 'fluent/plugin/in_systemd'
+require_relative "../helper"
+require "tempfile"
+require "fluent/plugin/in_systemd"
 
 class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLength
 
@@ -16,7 +16,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       strip_underscores true
     )
 
-    pos_dir = Dir.mktmpdir('posdir')
+    pos_dir = Dir.mktmpdir("posdir")
 
     @pos_path = "#{pos_dir}/foo.pos"
 
@@ -41,40 +41,40 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
 
   def test_configure_requires_tag
     assert_raise Fluent::ConfigError do
-      create_driver('')
+      create_driver("")
     end
   end
 
   def test_configuring_tag
     d = create_driver(base_config)
-    assert_equal d.instance.tag, 'test'
+    assert_equal d.instance.tag, "test"
   end
 
   def test_reading_from_the_journal_tail
     d = create_driver(base_config)
     d.expect_emit(
-      'test',
+      "test",
       1_364_519_243,
-      '_UID' => '0',
-      '_GID' => '0',
-      '_BOOT_ID' => '4737ffc504774b3ba67020bc947f1bc0',
-      '_MACHINE_ID' => 'bb9d0a52a41243829ecd729b40ac0bce',
-      '_HOSTNAME' => 'arch',
-      'PRIORITY' => '5',
-      '_TRANSPORT' => 'syslog',
-      'SYSLOG_FACILITY' => '10',
-      'SYSLOG_IDENTIFIER' => 'login',
-      '_PID' => '141',
-      '_COMM' => 'login',
-      '_EXE' => '/bin/login',
-      '_AUDIT_SESSION' => '1',
-      '_AUDIT_LOGINUID' => '0',
-      'MESSAGE' => 'ROOT LOGIN ON tty1',
-      '_CMDLINE' => 'login -- root      ',
-      '_SYSTEMD_CGROUP' => '/user/root/1',
-      '_SYSTEMD_SESSION' => '1',
-      '_SYSTEMD_OWNER_UID' => '0',
-      '_SOURCE_REALTIME_TIMESTAMP' => '1364519243563178',
+      "_UID" => "0",
+      "_GID" => "0",
+      "_BOOT_ID" => "4737ffc504774b3ba67020bc947f1bc0",
+      "_MACHINE_ID" => "bb9d0a52a41243829ecd729b40ac0bce",
+      "_HOSTNAME" => "arch",
+      "PRIORITY" => "5",
+      "_TRANSPORT" => "syslog",
+      "SYSLOG_FACILITY" => "10",
+      "SYSLOG_IDENTIFIER" => "login",
+      "_PID" => "141",
+      "_COMM" => "login",
+      "_EXE" => "/bin/login",
+      "_AUDIT_SESSION" => "1",
+      "_AUDIT_LOGINUID" => "0",
+      "MESSAGE" => "ROOT LOGIN ON tty1",
+      "_CMDLINE" => "login -- root      ",
+      "_SYSTEMD_CGROUP" => "/user/root/1",
+      "_SYSTEMD_SESSION" => "1",
+      "_SYSTEMD_OWNER_UID" => "0",
+      "_SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
     )
     d.run
   end
@@ -82,28 +82,28 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
   def test_reading_from_the_journal_tail_with_strip_underscores
     d = create_driver(strip_config)
     d.expect_emit(
-      'test',
+      "test",
       1_364_519_243,
-      'UID' => '0',
-      'GID' => '0',
-      'BOOT_ID' => '4737ffc504774b3ba67020bc947f1bc0',
-      'MACHINE_ID' => 'bb9d0a52a41243829ecd729b40ac0bce',
-      'HOSTNAME' => 'arch',
-      'PRIORITY' => '5',
-      'TRANSPORT' => 'syslog',
-      'SYSLOG_FACILITY' => '10',
-      'SYSLOG_IDENTIFIER' => 'login',
-      'PID' => '141',
-      'COMM' => 'login',
-      'EXE' => '/bin/login',
-      'AUDIT_SESSION' => '1',
-      'AUDIT_LOGINUID' => '0',
-      'MESSAGE' => 'ROOT LOGIN ON tty1',
-      'CMDLINE' => 'login -- root      ',
-      'SYSTEMD_CGROUP' => '/user/root/1',
-      'SYSTEMD_SESSION' => '1',
-      'SYSTEMD_OWNER_UID' => '0',
-      'SOURCE_REALTIME_TIMESTAMP' => '1364519243563178',
+      "UID" => "0",
+      "GID" => "0",
+      "BOOT_ID" => "4737ffc504774b3ba67020bc947f1bc0",
+      "MACHINE_ID" => "bb9d0a52a41243829ecd729b40ac0bce",
+      "HOSTNAME" => "arch",
+      "PRIORITY" => "5",
+      "TRANSPORT" => "syslog",
+      "SYSLOG_FACILITY" => "10",
+      "SYSLOG_IDENTIFIER" => "login",
+      "PID" => "141",
+      "COMM" => "login",
+      "EXE" => "/bin/login",
+      "AUDIT_SESSION" => "1",
+      "AUDIT_LOGINUID" => "0",
+      "MESSAGE" => "ROOT LOGIN ON tty1",
+      "CMDLINE" => "login -- root      ",
+      "SYSTEMD_CGROUP" => "/user/root/1",
+      "SYSTEMD_SESSION" => "1",
+      "SYSTEMD_OWNER_UID" => "0",
+      "SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
     )
     d.run
   end
@@ -112,7 +112,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
   def test_pos_file_is_written
     d = create_driver(pos_config)
     d.run
-    assert_equal File.read(pos_path), 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4' # rubocop:disable Metrics/LineLength
+    assert_equal File.read(pos_path), "s=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4" # rubocop:disable Metrics/LineLength
   end
 
   def test_reading_from_head
@@ -128,8 +128,8 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
   end
 
   def test_reading_from_a_pos
-    file = File.open(pos_path, 'w+')
-    file.print 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=13f;b=4737ffc504774b3ba67020bc947f1bc0;m=ffadd;t=4d905e49a6291;x=9a11dd9ffee96e9f' # rubocop:disable Metrics/LineLength
+    file = File.open(pos_path, "w+")
+    file.print "s=add4782f78ca4b6e84aa88d34e5b4a9d;i=13f;b=4737ffc504774b3ba67020bc947f1bc0;m=ffadd;t=4d905e49a6291;x=9a11dd9ffee96e9f" # rubocop:disable Metrics/LineLength
     file.close
     d = create_driver(head_config)
     d.run
@@ -137,8 +137,8 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
   end
 
   def test_reading_from_an_invalid_pos
-    file = File.open(pos_path, 'w+')
-    file.print 'thisisinvalid'
+    file = File.open(pos_path, "w+")
+    file.print "thisisinvalid"
     file.close
     assert_raise Systemd::JournalError do
       create_driver(head_config)

@@ -46,7 +46,7 @@ module Fluent
       def write_pos
         lock.synchronize do
           if @written_cursor != cursor
-            file = File.open(path, 'w+')
+            file = File.open(path, "w+")
             file.print cursor
             file.close
             @written_cursor = cursor
