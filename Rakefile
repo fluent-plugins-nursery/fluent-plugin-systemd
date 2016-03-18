@@ -5,15 +5,14 @@ require "fileutils"
 
 ReevooCop::RakeTask.new(:reevoocop)
 
-Rake::TestTask.new(:tests) do |t|
+Rake::TestTask.new(:test) do |t|
   t.test_files = Dir["test/**/test_*.rb"]
 end
 
-task default: :test
-task build: :test
-task tests: :reevoocop
+task default: "docker:test"
+task build: "docker:test"
+task test: :reevoocop
 
-task test: "docker:test"
 namespace :docker do
   task test: [:ubuntu, :centos]
 
