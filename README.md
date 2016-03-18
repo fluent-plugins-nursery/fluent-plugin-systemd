@@ -68,9 +68,9 @@ This plugin depends on libsystemd
 
 ## Running the tests
 
-To run the tests simply run `rake test`
+To run the tests with docker on several distros simply run `rake`
 
-For systems without systemd the tests are run in a docker container. So you will need docker or systemd installed to work on this.
+For systems with systemd installed you can run the tests against your installed libsystemd with `rake test`
 
 ## Licence etc
 

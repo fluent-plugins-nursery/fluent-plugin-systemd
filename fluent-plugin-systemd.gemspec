@@ -15,8 +15,7 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
 
 
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(/^(test|spec|features)\//) }
-  spec.executables   = spec.files.grep(/^exe\//) { |f| File.basename(f) }
+  spec.files         = Dir["**/**"].reject { |f| f.match(/^(test|spec|features)\//) }
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 1.10"

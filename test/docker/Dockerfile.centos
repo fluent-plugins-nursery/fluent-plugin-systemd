@@ -1,0 +1,13 @@
+FROM centos:7.1.1503
+
+RUN yum -y install git-core zlib zlib-devel gcc-c++ patch readline readline-devel libyaml-devel libffi-devel openssl-devel make bzip2 autoconf automake libtool bison curl sqlite-devel ruby-devel \
+      && yum clean all \
+      && gem install bundler
+
+WORKDIR /usr/local/src
+
+COPY Gemfile ./
+COPY fluent-plugin-systemd.gemspec ./
+RUN bundle install -j4 -r3
+COPY . .
+RUN bundle exec rake test
