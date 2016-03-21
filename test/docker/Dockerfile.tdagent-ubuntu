@@ -1,0 +1,20 @@
+FROM quay.io/assemblyline/buildpack_deps:15.10
+
+RUN curl https://packages.treasuredata.com/GPG-KEY-td-agent | apt-key add - \
+      && echo "deb http://packages.treasuredata.com/2/ubuntu/trusty/ trusty contrib" > /etc/apt/sources.list.d/treasure-data.list \
+      && apt-get update -q \
+      && apt-get install -qy --no-install-recommends \
+        td-agent \
+        libsystemd0 \
+      && apt-get clean \
+      && rm -rf /var/lib/apt/lists/* \
+      && truncate -s 0 /var/log/*log
+
+ENV PATH /opt/td-agent/embedded/bin/:$PATH
+
+WORKDIR /usr/local/src
+COPY Gemfile ./
+COPY fluent-plugin-systemd.gemspec ./
+RUN bundle check || bundle install
+COPY . .
+RUN rake test

@@ -4,8 +4,8 @@ RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu vivid main" | te
       && echo "deb-src http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu vivid main" | tee -a /etc/apt/sources.list.d/ruby-ng.list \
       && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C3173AA6 \
       && apt-get update -q && apt-get install -qy --no-install-recommends \
-        ruby2.2 \
-        ruby2.2-dev \
+        ruby2.1 \
+        ruby2.1-dev \
         libsystemd0 \
       && apt-get clean \
       && rm -rf /var/lib/apt/lists/* \

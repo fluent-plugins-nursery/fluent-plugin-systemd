@@ -14,17 +14,18 @@ task build: "docker:test"
 task test: :reevoocop
 
 namespace :docker do
-  task test: [:ubuntu, :centos]
+  distros = [:ubuntu, :"tdagent-ubuntu", :centos, :"tdagent-centos"]
+  task test: distros
 
-  task :ubuntu do
-    FileUtils.cp("test/docker/Dockerfile.ubuntu", "Dockerfile")
-    sh "docker build ."
-    FileUtils.rm("Dockerfile")
-  end
-
-  task :centos do
-    FileUtils.cp("test/docker/Dockerfile.centos", "Dockerfile")
-    sh "docker build ."
-    FileUtils.rm("Dockerfile")
+  distros.each do |distro|
+    task distro do
+      puts "testing on #{distro}"
+      begin
+        FileUtils.cp("test/docker/Dockerfile.#{distro}", "Dockerfile")
+        sh "docker build ."
+      ensure
+        FileUtils.rm("Dockerfile")
+      end
+    end
   end
 end
