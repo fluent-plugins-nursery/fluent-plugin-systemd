@@ -18,9 +18,9 @@ module Fluent
       super
       @pos_writer = PosWriter.new(conf["pos_file"])
       @journal = Systemd::Journal.new(path: path)
+      @read_from_head = conf["read_from_head"]
       journal.filter(*filters)
-      read_from = @pos_writer.cursor || (conf["read_from_head"] ? :head : :tail)
-      journal.seek(read_from)
+      seek
     end
 
     def start
@@ -38,7 +38,18 @@ module Fluent
 
     private
 
-    attr_reader :journal, :running, :lock, :cursor, :path, :pos_writer, :strip_underscores
+    attr_reader :journal, :running, :lock, :cursor, :path, :pos_writer, :strip_underscores, :read_from_head
+
+    def seek
+      journal.seek(@pos_writer.cursor || read_from)
+    rescue Systemd::JournalError
+      log.warn("Could not seek to cursor #{@pos_writer.cursor} found in pos file: #{@pos_writer.path}")
+      journal.seek(read_from)
+    end
+
+    def read_from
+      read_from_head ? :head : :tail
+    end
 
     def run
       watch do |entry|

@@ -6,7 +6,7 @@ module Fluent
         setup
       end
 
-      attr_reader :cursor
+      attr_reader :cursor, :path
 
       def start
         return unless path
@@ -28,7 +28,7 @@ module Fluent
 
       private
 
-      attr_reader :path, :lock, :thread, :running
+      attr_reader :lock, :thread, :running
 
       def setup
         return unless path
