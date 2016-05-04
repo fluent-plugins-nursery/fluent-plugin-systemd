@@ -136,12 +136,18 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     assert_equal 143, d.emits.size
   end
 
-  def test_reading_from_an_invalid_pos
+  def test_reading_from_an_invalid_pos # rubocop:disable Metrics/AbcSize
     file = File.open(pos_path, "w+")
     file.print "thisisinvalid"
     file.close
-    assert_raise Systemd::JournalError do
-      create_driver(head_config)
-    end
+
+    # It continues as if the pos file did not exist
+    d = create_driver(head_config)
+    d.run
+    assert_equal 461, d.emits.size
+    assert_match(
+      /\[warn\]: Could not seek to cursor thisisinvalid found in pos file: #{pos_path}/,
+      d.instance.log.out.logs.first,
+    )
   end
 end
