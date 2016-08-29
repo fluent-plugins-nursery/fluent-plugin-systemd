@@ -1,6 +1,7 @@
 require_relative "../helper"
 require "tempfile"
 require "fluent/plugin/in_systemd"
+require "fluent/input"
 
 class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLength
 
