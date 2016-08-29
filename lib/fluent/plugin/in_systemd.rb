@@ -1,4 +1,5 @@
 require "systemd/journal"
+require "fluent/input"
 require "fluent/plugin/systemd/pos_writer"
 
 module Fluent
