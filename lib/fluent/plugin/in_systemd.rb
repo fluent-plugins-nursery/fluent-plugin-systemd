@@ -1,4 +1,5 @@
 require "systemd/journal"
+require "fluent/input"
 require "fluent/plugin/systemd/pos_writer"
 
 module Fluent
@@ -31,6 +32,7 @@ module Fluent
     end
 
     def shutdown
+      super
       @running = false
       @thread.join
       pos_writer.shutdown
