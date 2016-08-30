@@ -11,10 +11,10 @@ end
 
 task default: "docker:test"
 task build: "docker:test"
-task test: :reevoocop
+task default: :reevoocop
 
 namespace :docker do
-  distros = [:ubuntu, :"tdagent-ubuntu", :centos, :"tdagent-centos"]
+  distros = [:ubuntu, :"tdagent-ubuntu", :"tdagent-centos"]
   task test: distros
 
   distros.each do |distro|

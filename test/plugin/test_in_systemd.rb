@@ -1,7 +1,6 @@
 require_relative "../helper"
 require "tempfile"
 require "fluent/plugin/in_systemd"
-require "fluent/input"
 
 class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLength
 
@@ -146,9 +145,5 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     d = create_driver(head_config)
     d.run
     assert_equal 461, d.emits.size
-    assert_match(
-      /\[warn\]: Could not seek to cursor thisisinvalid found in pos file: #{pos_path}/,
-      d.instance.log.out.logs.first,
-    )
   end
 end

@@ -12,6 +12,7 @@ RUN curl https://packages.treasuredata.com/GPG-KEY-td-agent | apt-key add - \
 
 ENV PATH /opt/td-agent/embedded/bin/:$PATH
 
+RUN fluent-gem install bundler
 WORKDIR /usr/local/src
 COPY Gemfile ./
 COPY fluent-plugin-systemd.gemspec ./
