@@ -1,4 +1,3 @@
-require "fluent/input"
 module Fluent
   class SystemdInput < Input
     class PosWriter

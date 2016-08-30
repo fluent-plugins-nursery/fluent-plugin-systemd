@@ -32,6 +32,7 @@ module Fluent
     end
 
     def shutdown
+      super
       @running = false
       @thread.join
       pos_writer.shutdown
@@ -43,9 +44,9 @@ module Fluent
 
     def seek
       journal.seek(@pos_writer.cursor || read_from)
-    rescue Systemd::JournalError
-      log.warn("Could not seek to cursor #{@pos_writer.cursor} found in pos file: #{@pos_writer.path}")
-      journal.seek(read_from)
+     rescue Systemd::JournalError
+       log.warn("Could not seek to cursor #{@pos_writer.cursor} found in pos file: #{@pos_writer.path}")
+       journal.seek(read_from)
     end
 
     def read_from
