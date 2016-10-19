@@ -29,7 +29,6 @@ module Fluent
       @running = true
       pos_writer.start
       @thread = Thread.new(&method(:run))
-      @thread.abort_on_exception = true
     end
 
     def shutdown
@@ -55,6 +54,7 @@ module Fluent
     end
 
     def run
+      Thread.current.abort_on_exception = true
       watch do |entry|
         begin
           router.emit(tag, entry.realtime_timestamp.to_i, formatted(entry))
