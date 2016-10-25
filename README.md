@@ -10,15 +10,15 @@
 
 Simply use RubyGems:
 
-    gem install fluent-plugin-systemd -v 0.0.4
+    gem install fluent-plugin-systemd -v 0.0.5
 
     or
 
-    fluent-gem install fluent-plugin-systemd -v 0.0.4
+    fluent-gem install fluent-plugin-systemd -v 0.0.5
 
     or
 
-    td-agent-gem install fluent-plugin-systemd -v 0.0.4
+    td-agent-gem install fluent-plugin-systemd -v 0.0.5
 
 ## Configuration
 
