@@ -80,6 +80,7 @@ Issues and pull requests welcome
 
 ## Contributors
 
-Many thanks to our wonderful contributors
+Many thanks to our brilliant contributors
 
 * [jescarri](https://github.com/jescarri)
+* [mikekap](https://github.com/mikekap)
