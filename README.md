@@ -23,7 +23,7 @@ Simply use RubyGems:
 ## Configuration
 
     <source>
-      type systemd
+      @type systemd
       path /var/log/journal
       filters [{ "_SYSTEMD_UNIT": "kube-proxy.service" }]
       pos_file kube-proxy.pos
