@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Input plugin to read from systemd journal."
   spec.description   = "This is a fluentd input plugin. It reads logs from the systemd journal."
-  spec.homepage      = "https://github.com/assemblyline/fluent-plugin-systemd"
+  spec.homepage      = "https://github.com/reevoo/fluent-plugin-systemd"
   spec.license       = "MIT"
 
 
