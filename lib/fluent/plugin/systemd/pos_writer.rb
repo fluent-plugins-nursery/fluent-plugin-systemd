@@ -8,7 +8,7 @@ module Fluent
         setup
       end
 
-      attr_reader :cursor, :path, :lock, :thread, :running
+      attr_reader :cursor, :path
 
       def start
         return unless @path
@@ -46,8 +46,8 @@ module Fluent
       def write_pos
         @lock.synchronize do
           if @written_cursor != @cursor
-            file = File.open(path, "w+")
-            file.print cursor
+            file = File.open(@path, "w+")
+            file.print @cursor
             file.close
             @written_cursor = @cursor
           end

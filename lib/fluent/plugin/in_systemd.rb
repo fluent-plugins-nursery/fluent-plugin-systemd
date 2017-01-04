@@ -13,8 +13,6 @@ module Fluent
     config_param :strip_underscores, :bool, default: false
     config_param :tag, :string
 
-    attr_reader :tag, :journal, :running, :pos_writer
-
     def configure(conf)
       super
       @pos_writer = PosWriter.new(@pos_file)
