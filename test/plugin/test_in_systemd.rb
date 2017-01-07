@@ -31,9 +31,13 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     @filter_config = @head_config + %(
       filters [{ "_SYSTEMD_UNIT": "systemd-journald.service" }]
     )
+
+    @tail_config = @pos_config + %(
+      read_from_head false
+    )
   end
 
-  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config, :filter_config, :strip_config
+  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config, :filter_config, :strip_config, :tail_config
 
   def create_driver(config)
     Fluent::Test::InputTestDriver.new(Fluent::SystemdInput).configure(config)
@@ -146,4 +150,34 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     d.run
     assert_equal 461, d.emits.size
   end
+
+  def test_reading_from_the_journal_tail_explicit_setting
+    d = create_driver(tail_config)
+    d.expect_emit(
+      "test",
+      1_364_519_243,
+      "_UID" => "0",
+      "_GID" => "0",
+      "_BOOT_ID" => "4737ffc504774b3ba67020bc947f1bc0",
+      "_MACHINE_ID" => "bb9d0a52a41243829ecd729b40ac0bce",
+      "_HOSTNAME" => "arch",
+      "PRIORITY" => "5",
+      "_TRANSPORT" => "syslog",
+      "SYSLOG_FACILITY" => "10",
+      "SYSLOG_IDENTIFIER" => "login",
+      "_PID" => "141",
+      "_COMM" => "login",
+      "_EXE" => "/bin/login",
+      "_AUDIT_SESSION" => "1",
+      "_AUDIT_LOGINUID" => "0",
+      "MESSAGE" => "ROOT LOGIN ON tty1",
+      "_CMDLINE" => "login -- root      ",
+      "_SYSTEMD_CGROUP" => "/user/root/1",
+      "_SYSTEMD_SESSION" => "1",
+      "_SYSTEMD_OWNER_UID" => "0",
+      "_SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
+    )
+    d.run
+  end
+
 end
