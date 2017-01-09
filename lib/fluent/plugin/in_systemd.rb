@@ -13,20 +13,18 @@ module Fluent
     config_param :strip_underscores, :bool, default: false
     config_param :tag, :string
 
-    attr_reader :tag
-
     def configure(conf)
       super
-      @pos_writer = PosWriter.new(conf["pos_file"])
-      @journal = Systemd::Journal.new(path: path)
-      journal.filter(*filters)
+      @pos_writer = PosWriter.new(@pos_file)
+      @journal = Systemd::Journal.new(path: @path)
+      @journal.filter(*@filters)
       seek
     end
 
     def start
       super
       @running = true
-      pos_writer.start
+      @pos_writer.start
       @thread = Thread.new(&method(:run))
     end
 
@@ -34,29 +32,27 @@ module Fluent
       super
       @running = false
       @thread.join
-      pos_writer.shutdown
+      @pos_writer.shutdown
     end
 
     private
 
-    attr_reader :journal, :running, :lock, :cursor, :path, :pos_writer, :strip_underscores, :read_from_head
-
     def seek
-      journal.seek(@pos_writer.cursor || read_from)
+      @journal.seek(@pos_writer.cursor || read_from)
     rescue Systemd::JournalError
       log.warn("Could not seek to cursor #{@pos_writer.cursor} found in pos file: #{@pos_writer.path}")
-      journal.seek(read_from)
+      @journal.seek(read_from)
     end
 
     def read_from
-      read_from_head ? :head : :tail
+      @read_from_head ? :head : :tail
     end
 
     def run
       Thread.current.abort_on_exception = true
       watch do |entry|
         begin
-          router.emit(tag, entry.realtime_timestamp.to_i, formatted(entry))
+          router.emit(@tag, entry.realtime_timestamp.to_i, formatted(entry))
         rescue => e
           log.error("Exception emitting record: #{e}")
         end
@@ -64,16 +60,16 @@ module Fluent
     end
 
     def formatted(entry)
-      return entry.to_h unless strip_underscores
+      return entry.to_h unless @strip_underscores
       Hash[entry.to_h.map { |k, v| [k.gsub(/\A_+/, ""), v] }]
     end
 
     def watch
-      while running
-        next unless journal.wait(1_000_000)
-        while journal.move_next && running
-          yield journal.current_entry
-          pos_writer.update(journal.cursor)
+      while @running
+        next unless @journal.wait(1_000_000)
+        while @journal.move_next && @running
+          yield @journal.current_entry
+          @pos_writer.update(@journal.cursor)
         end
       end
     end
