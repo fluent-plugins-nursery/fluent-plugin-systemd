@@ -62,7 +62,7 @@ module Fluent::Plugin
       Thread.current.abort_on_exception = true
       watch do |entry|
         begin
-          router.emit(@tag, entry.realtime_timestamp.to_i, formatted(entry))
+          router.emit(@tag, Fluent::EventTime.from_time(entry.realtime_timestamp), formatted(entry))
         rescue => e
           log.error("Exception emitting record: #{e}")
         end
