@@ -1,6 +1,6 @@
-require "fluent/input"
+require "fluent/plugin/input"
 
-module Fluent
+module Fluent::Plugin
   class SystemdInput < Input
     class PosWriter
       def initialize(pos_file)

@@ -1,8 +1,8 @@
 require "systemd/journal"
-require "fluent/input"
+require "fluent/plugin/input"
 require "fluent/plugin/systemd/pos_writer"
 
-module Fluent
+module Fluent::Plugin
   class SystemdInput < Input
     Fluent::Plugin.register_input("systemd", self)
 

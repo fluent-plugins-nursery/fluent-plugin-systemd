@@ -40,7 +40,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
   attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config, :filter_config, :strip_config, :tail_config
 
   def create_driver(config)
-    Fluent::Test::InputTestDriver.new(Fluent::SystemdInput).configure(config)
+    Fluent::Test::Driver::Input.new(Fluent::Plugin::SystemdInput).configure(config)
   end
 
   def test_configure_requires_tag
@@ -56,7 +56,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
 
   def test_reading_from_the_journal_tail
     d = create_driver(base_config)
-    d.expect_emit(
+    expected = [[
       "test",
       1_364_519_243,
       "_UID" => "0",
@@ -79,13 +79,14 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       "_SYSTEMD_SESSION" => "1",
       "_SYSTEMD_OWNER_UID" => "0",
       "_SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
-    )
-    d.run
+    ]]
+    d.run(expect_emits: 1)
+    assert_equal(expected, d.events)
   end
 
   def test_reading_from_the_journal_tail_with_strip_underscores
     d = create_driver(strip_config)
-    d.expect_emit(
+    expected = [[
       "test",
       1_364_519_243,
       "UID" => "0",
@@ -108,27 +109,28 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       "SYSTEMD_SESSION" => "1",
       "SYSTEMD_OWNER_UID" => "0",
       "SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
-    )
-    d.run
+    ]]
+    d.run(expect_emits: 1)
+    assert_equal(expected, d.events)
   end
 
 
   def test_pos_file_is_written
     d = create_driver(pos_config)
-    d.run
+    d.run(expect_emits: 1)
     assert_equal File.read(pos_path), "s=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4" # rubocop:disable Metrics/LineLength
   end
 
   def test_reading_from_head
     d = create_driver(head_config)
-    d.run
-    assert_equal 461, d.emits.size
+    d.run(expect_emits: 1)
+    assert_equal 461, d.events.size
   end
 
   def test_reading_with_filters
     d = create_driver(filter_config)
-    d.run
-    assert_equal 3, d.emits.size
+    d.run(expect_emits: 1)
+    assert_equal 3, d.events.size
   end
 
   def test_reading_from_a_pos
@@ -136,8 +138,8 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     file.print "s=add4782f78ca4b6e84aa88d34e5b4a9d;i=13f;b=4737ffc504774b3ba67020bc947f1bc0;m=ffadd;t=4d905e49a6291;x=9a11dd9ffee96e9f" # rubocop:disable Metrics/LineLength
     file.close
     d = create_driver(head_config)
-    d.run
-    assert_equal 143, d.emits.size
+    d.run(expect_emits: 1)
+    assert_equal 143, d.events.size
   end
 
   def test_reading_from_an_invalid_pos # rubocop:disable Metrics/AbcSize
@@ -147,13 +149,13 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
 
     # It continues as if the pos file did not exist
     d = create_driver(head_config)
-    d.run
-    assert_equal 461, d.emits.size
+    d.run(expect_emits: 1)
+    assert_equal 461, d.events.size
   end
 
   def test_reading_from_the_journal_tail_explicit_setting
     d = create_driver(tail_config)
-    d.expect_emit(
+    expected = [[
       "test",
       1_364_519_243,
       "_UID" => "0",
@@ -176,8 +178,9 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       "_SYSTEMD_SESSION" => "1",
       "_SYSTEMD_OWNER_UID" => "0",
       "_SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
-    )
-    d.run
+    ]]
+    d.run(expect_emits: 1)
+    assert_equal(expected, d.events)
   end
 
 end
