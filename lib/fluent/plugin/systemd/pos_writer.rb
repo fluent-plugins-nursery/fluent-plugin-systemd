@@ -5,6 +5,9 @@ module Fluent
     class PosWriter
       def initialize(pos_file)
         @path = pos_file
+        @lock = Mutex.new
+        @cursor = nil
+        @written_cursor = nil
         setup
       end
 
@@ -31,9 +34,8 @@ module Fluent
       private
 
       def setup
-        return unless @path
-        @lock = Mutex.new
-        @cursor = IO.read(@path).chomp if File.exist?(@path)
+        return unless @path && File.exist?(@path)
+        @cursor = IO.read(@path).chomp
       end
 
       def work
