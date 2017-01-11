@@ -123,13 +123,19 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
 
   def test_reading_from_head
     d = create_driver(head_config)
-    d.run(expect_emits: 1)
+    d.end_if do
+      d.events.size >= 461
+    end
+    d.run
     assert_equal 461, d.events.size
   end
 
   def test_reading_with_filters
     d = create_driver(filter_config)
-    d.run(expect_emits: 1)
+    d.end_if do
+      d.events.size >= 3
+    end
+    d.run
     assert_equal 3, d.events.size
   end
 
@@ -138,7 +144,10 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     file.print "s=add4782f78ca4b6e84aa88d34e5b4a9d;i=13f;b=4737ffc504774b3ba67020bc947f1bc0;m=ffadd;t=4d905e49a6291;x=9a11dd9ffee96e9f" # rubocop:disable Metrics/LineLength
     file.close
     d = create_driver(head_config)
-    d.run(expect_emits: 1)
+    d.end_if do
+      d.events.size >= 143
+    end
+    d.run
     assert_equal 143, d.events.size
   end
 
@@ -149,7 +158,10 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
 
     # It continues as if the pos file did not exist
     d = create_driver(head_config)
-    d.run(expect_emits: 1)
+    d.end_if do
+      d.events.size >= 461
+    end
+    d.run
     assert_equal 461, d.events.size
   end
 
