@@ -2,7 +2,8 @@ require "systemd/journal"
 require "fluent/plugin/input"
 require "fluent/plugin/systemd/pos_writer"
 
-module Fluent::Plugin
+module Fluent
+  module Plugin
   class SystemdInput < Input
     Fluent::Plugin.register_input("systemd", self)
 
@@ -83,5 +84,6 @@ module Fluent::Plugin
         end
       end
     end
+  end
   end
 end
