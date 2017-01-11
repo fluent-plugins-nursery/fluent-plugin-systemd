@@ -126,7 +126,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     d.end_if do
       d.events.size >= 461
     end
-    d.run
+    d.run(timeout: 5)
     assert_equal 461, d.events.size
   end
 
@@ -135,7 +135,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     d.end_if do
       d.events.size >= 3
     end
-    d.run
+    d.run(timeout: 5)
     assert_equal 3, d.events.size
   end
 
@@ -147,7 +147,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     d.end_if do
       d.events.size >= 143
     end
-    d.run
+    d.run(timeout: 5)
     assert_equal 143, d.events.size
   end
 
@@ -161,7 +161,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     d.end_if do
       d.events.size >= 461
     end
-    d.run
+    d.run(timeout: 5)
     assert_equal 461, d.events.size
   end
 
