@@ -38,10 +38,20 @@ module Fluent
     private
 
     def seek
-      @journal.seek(@pos_writer.cursor || read_from)
+      seek_to(@pos_writer.cursor || read_from)
     rescue Systemd::JournalError
       log.warn("Could not seek to cursor #{@pos_writer.cursor} found in pos file: #{@pos_writer.path}")
-      @journal.seek(read_from)
+      seek_to(read_from)
+    end
+
+    # according to https://github.com/ledbettj/systemd-journal/issues/64#issuecomment-271056644
+    # and https://bugs.freedesktop.org/show_bug.cgi?id=64614, after doing a seek(:tail),
+    # you must move back in such a way that the next move_next will return the last
+    # record
+    def seek_to(pos)
+      @journal.seek(pos)
+      return unless pos == :tail
+      @journal.move(-2)
     end
 
     def read_from
