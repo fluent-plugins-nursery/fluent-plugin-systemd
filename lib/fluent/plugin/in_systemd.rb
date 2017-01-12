@@ -7,6 +7,8 @@ module Fluent
     class SystemdInput < Input
       Fluent::Plugin.register_input("systemd", self)
 
+      helpers :timer
+
       config_param :path, :string, default: "/var/log/journal"
       config_param :filters, :array, default: []
       config_param :pos_file, :string, default: nil
@@ -24,16 +26,13 @@ module Fluent
 
       def start
         super
-        @running = true
         @pos_writer.start
-        @thread = Thread.new(&method(:run))
+        timer_execute(:in_systemd_emit_worker, 1, &method(:run))
       end
 
       def shutdown
-        super
-        @running = false
-        @thread.join
         @pos_writer.shutdown
+        super
       end
 
       private
@@ -76,12 +75,9 @@ module Fluent
       end
 
       def watch
-        while @running
-          next unless @journal.wait(1_000_000)
-          while @journal.move_next && @running
-            yield @journal.current_entry
-            @pos_writer.update(@journal.cursor)
-          end
+        while @journal.move_next
+          yield @journal.current_entry
+          @pos_writer.update(@journal.cursor)
         end
       end
     end
