@@ -10,15 +10,15 @@
 
 Simply use RubyGems:
 
-    gem install fluent-plugin-systemd -v 0.0.5
+    gem install fluent-plugin-systemd -v 0.1.0
 
     or
 
-    fluent-gem install fluent-plugin-systemd -v 0.0.5
+    fluent-gem install fluent-plugin-systemd -v 0.1.0
 
     or
 
-    td-agent-gem install fluent-plugin-systemd -v 0.0.5
+    td-agent-gem install fluent-plugin-systemd -v 0.1.0
 
 ## Configuration
 
@@ -78,9 +78,17 @@ For systems with systemd installed you can run the tests against your installed 
 
 Issues and pull requests welcome
 
+## Maintainer
+
+* [Ed Robinson](https://github.com/errm)
+
 ## Contributors
 
-Many thanks to our brilliant contributors
+Many thanks to our fantastic contributors
 
-* [jescarri](https://github.com/jescarri)
-* [mikekap](https://github.com/mikekap)
+* [Jesus Rafael Carrillo](https://github.com/jescarri)
+* [Mike Kaplinskiy](https://github.com/mikekap)
+* [Sadayuki Furuhashi](https://github.com/frsyuki)
+* [Richard Megginson](https://github.com/richm)
+* [Masahiro Nakagawa](https://github.com/repeatedly)
+* [Hiroshi Hatake](https://github.com/cosmo0920)
