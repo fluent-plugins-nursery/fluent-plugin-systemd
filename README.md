@@ -7,8 +7,8 @@
 
 |fluent-plugin-systemd|fluentd|ruby|
 |----|----|----|
-|>= 0.1.0 | >= 0.14.11, < 2 | >= 2.1 |
-|<= 0.0.5 | ~> 0.12.0 | >= 1.9  |
+| 0.1.x | >= 0.14.11, < 2 | >= 2.1 |
+| 0.0.x | ~> 0.12.0 | >= 1.9  |
 
 ## Overview
 
@@ -22,11 +22,7 @@ Simply use RubyGems:
 
     or
 
-    fluent-gem install fluent-plugin-systemd -v 0.1.0
-
-    or
-
-    td-agent-gem install fluent-plugin-systemd -v 0.1.0
+    td-agent-gem install fluent-plugin-systemd -v 0.5.0
 
 ## Configuration
 
