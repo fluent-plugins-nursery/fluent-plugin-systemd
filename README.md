@@ -2,6 +2,14 @@
 
 [![Build Status](https://travis-ci.org/reevoo/fluent-plugin-systemd.svg?branch=master)](https://travis-ci.org/reevoo/fluent-plugin-systemd) [![Code Climate GPA](https://codeclimate.com/github/reevoo/fluent-plugin-systemd/badges/gpa.svg)](https://codeclimate.com/github/reevoo/fluent-plugin-systemd) [![Gem Version](https://badge.fury.io/rb/fluent-plugin-systemd.svg)](https://rubygems.org/gems/fluent-plugin-systemd)
 
+# Requirements <a name="requirements"></a>
+
+
+|fluent-plugin-systemd|fluentd|ruby|
+|----|----|----|
+|>= 0.1.0 | >= 0.14.11, < 2 | >= 2.1 |
+|<= 0.0.5 | ~> 0.12.0 | >= 1.9  |
+
 ## Overview
 
 **systemd** input plugin reads logs from the systemd journal
