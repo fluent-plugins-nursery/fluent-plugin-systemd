@@ -2,6 +2,22 @@
 
 [![Build Status](https://travis-ci.org/reevoo/fluent-plugin-systemd.svg?branch=master)](https://travis-ci.org/reevoo/fluent-plugin-systemd) [![Code Climate GPA](https://codeclimate.com/github/reevoo/fluent-plugin-systemd/badges/gpa.svg)](https://codeclimate.com/github/reevoo/fluent-plugin-systemd) [![Gem Version](https://badge.fury.io/rb/fluent-plugin-systemd.svg)](https://rubygems.org/gems/fluent-plugin-systemd)
 
+# Requirements <a name="requirements"></a>
+
+
+|fluent-plugin-systemd|fluentd|ruby|
+|----|----|----|
+| 0.1.x | >= 0.14.11, < 2 | >= 2.1 |
+| 0.0.x | ~> 0.12.0 | >= 1.9  |
+
+## WARNING
+this is the maintenance branch for the **0.0.x** series that supports fluentd
+v0.12.x we plan to backport commits from master at least until td-agent is
+based on fluentd v0.14
+
+please install the [0.1.x release](https://github.com/reevoo/fluent-plugin-systemd)
+if you are using fluentd v0.14 for the latest and greatest features
+
 ## Overview
 
 **systemd** input plugin reads logs from the systemd journal
@@ -10,15 +26,11 @@
 
 Simply use RubyGems:
 
-    gem install fluent-plugin-systemd -v 0.0.5
+    gem install fluent-plugin-systemd -v 0.0.6
 
     or
 
-    fluent-gem install fluent-plugin-systemd -v 0.0.5
-
-    or
-
-    td-agent-gem install fluent-plugin-systemd -v 0.0.5
+    td-agent-gem install fluent-plugin-systemd -v 0.0.6
 
 ## Configuration
 
