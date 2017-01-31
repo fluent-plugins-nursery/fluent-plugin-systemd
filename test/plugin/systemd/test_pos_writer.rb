@@ -32,6 +32,17 @@ class SystemdInputTest < Test::Unit::TestCase
     FileUtils.rm_rf dir
   end
 
+  def test_file_permission_when_file_does_not_exist_yet
+    dir = Dir.mktmpdir("posdir")
+    path = "#{dir}/foo.pos"
+    pos_writer = Fluent::Plugin::SystemdInput::PosWriter.new(path)
+    pos_writer.start
+    pos_writer.update("this is the cursor")
+    sleep 1
+    assert_equal sprintf("%o", File::Stat.new(path).mode)[-4, 4], "0644"
+    FileUtils.rm_rf dir
+  end
+
   def test_writing_the_cursor_when_the_writer_is_shutdown
     dir = Dir.mktmpdir("posdir")
     path = "#{dir}/foo.pos"
