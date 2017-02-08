@@ -27,6 +27,10 @@ module Fluent
           write_pos
         end
 
+        def sync
+          write_pos
+        end
+
         def update(c)
           return unless @path
           @lock.synchronize { @cursor = c }
