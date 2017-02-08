@@ -53,8 +53,12 @@ module Fluent
       # record
       def seek_to(pos)
         @journal.seek(pos)
-        return unless pos == :tail
-        @journal.move(-2)
+        return if pos == :head
+        if pos == :tail
+          @journal.move(-2)
+        else
+          @journal.move(1)
+        end
       end
 
       def read_from
