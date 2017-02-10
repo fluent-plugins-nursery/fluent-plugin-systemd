@@ -13,8 +13,7 @@ module Fluent
 
       config_param :path, :string, default: "/var/log/journal"
       config_param :filters, :array, default: []
-      config_param :pos_file, :string, default: nil,
-                   deprecated: "Use <storage> section with `persistent: true' instead."
+      config_param :pos_file, :string, default: nil, deprecated: "Use <storage> section with `persistent: true' instead"
       config_param :read_from_head, :bool, default: false
       config_param :strip_underscores, :bool, default: false
       config_param :tag, :string

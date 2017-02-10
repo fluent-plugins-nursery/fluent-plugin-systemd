@@ -24,18 +24,8 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     @pos_config = base_config + %(
       pos_file #{@pos_path}
     )
+
     @storage_path = File.join("#{pos_dir}", "storage.json")
-    @storage_config = config_element("ROOT", "", {
-                                       "tag" => "test",
-                                       "path" => "test/fixture",
-                                       "@id" => "test-01",
-                                     }, [
-                                       config_element("storage", "",
-                                         "@type"      => "local",
-                                         "persistent" => true,
-                                         "path"       => @storage_path
-                                                     ),
-                                     ])
 
     @head_config = @pos_config + %(
       read_from_head true
@@ -55,8 +45,8 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     )
   end
 
-  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config, :filter_config,
-    :strip_config, :tail_config, :not_present_config, :storage_config, :storage_path
+  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config,
+    :filter_config, :strip_config, :tail_config, :not_present_config, :storage_path
 
   def create_driver(config)
     Fluent::Test::Driver::Input.new(Fluent::Plugin::SystemdInput).configure(config)
@@ -135,6 +125,18 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
 
 
   def test_storage_file_is_written
+    storage_config = config_element("ROOT", "", {
+                                      "tag" => "test",
+                                      "path" => "test/fixture",
+                                      "@id" => "test-01",
+                                    }, [
+                                      config_element("storage", "",
+                                        "@type"      => "local",
+                                        "persistent" => true,
+                                        "path"       => @storage_path
+                                                    ),
+                                    ])
+
     d = create_driver(storage_config)
     d.run(expect_emits: 1)
     storage = JSON.parse(File.read(storage_path))
