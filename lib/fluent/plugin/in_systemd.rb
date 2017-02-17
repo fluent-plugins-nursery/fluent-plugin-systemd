@@ -57,13 +57,16 @@ module Fluent
         false
       end
 
+      def storage
+        @pos_storage.path ?  @pos_storage : @pos_writer
+      end
+
       def seek
-        cursor = @pos_storage.get(:journal) || @pos_writer.cursor # for backward compatibility
+        cursor = storage.get(:journal)
         seek_to(cursor || read_from)
       rescue Systemd::JournalError
-        path = @pos_storage.path || @pos_writer.path # for backward compatibility
         log.warn(
-          "Could not seek to cursor #{cursor} found in pos file: #{path}, " \
+          "Could not seek to cursor #{cursor} found in pos file: #{storage.path}, " \
           "falling back to reading from #{read_from}",
         )
         seek_to(read_from)
@@ -107,7 +110,7 @@ module Fluent
       def watch
         while @journal.move_next
           yield @journal.current_entry
-          @pos_storage.put(:journal, @journal.cursor)
+          storage.put(:journal, @journal.cursor)
         end
       end
     end

@@ -12,7 +12,15 @@ module Fluent
           setup
         end
 
-        attr_reader :cursor, :path
+        attr_reader :path
+
+        def get(_)
+          @cursor
+        end
+
+        def put(_, cursor)
+          @lock.synchronize { @cursor = cursor }
+        end
 
         def start
           return unless @path
@@ -25,10 +33,6 @@ module Fluent
           @running = false
           @thread.join
           write_pos
-        end
-
-        def update(c)
-          @lock.synchronize { @cursor = c }
         end
 
         private
