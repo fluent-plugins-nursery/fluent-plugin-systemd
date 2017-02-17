@@ -19,6 +19,7 @@ module Fluent
       def configure(conf)
         super
         @pos_writer = PosWriter.new(@pos_file)
+        init_journal
       end
 
       def start
@@ -36,6 +37,9 @@ module Fluent
 
       def init_journal
         @journal = Systemd::Journal.new(path: @path)
+        # make sure initial call to wait doesn't return :invalidate
+        # see https://github.com/ledbettj/systemd-journal/issues/70
+        @journal.wait(0)
         @journal.filter(*@filters)
         seek
       end
@@ -66,8 +70,7 @@ module Fluent
       end
 
       def run
-        init_journal
-        Thread.current.abort_on_exception = true
+        init_journal if @journal.wait(0) == :invalidate
         watch do |entry|
           begin
             router.emit(@tag, Fluent::EventTime.from_time(entry.realtime_timestamp), formatted(entry))
@@ -75,7 +78,6 @@ module Fluent
             log.error("Exception emitting record: #{e}")
           end
         end
-        @pos_writer.sync
       end
 
       def formatted(entry)

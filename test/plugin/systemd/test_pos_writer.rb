@@ -32,17 +32,6 @@ class SystemdInputTest < Test::Unit::TestCase
     FileUtils.rm_rf dir
   end
 
-  def test_syncing_the_cursor_when_file_does_not_exist_yet
-    dir = Dir.mktmpdir("posdir")
-    path = "#{dir}/foo.pos"
-    pos_writer = Fluent::Plugin::SystemdInput::PosWriter.new(path)
-    pos_writer.start
-    pos_writer.update("this is the cursor")
-    pos_writer.sync
-    assert_equal File.read(path), "this is the cursor"
-    FileUtils.rm_rf dir
-  end
-
   def test_file_permission_when_file_does_not_exist_yet
     dir = Dir.mktmpdir("posdir")
     path = "#{dir}/foo.pos"
