@@ -4,22 +4,26 @@ module Fluent
   module Plugin
     class SystemdInput < Input
       class PosWriter
-        def initialize(pos_file)
+        def initialize(pos_file, storage)
           @path = pos_file
           @lock = Mutex.new
+          @storage = storage
           @cursor = nil
           @written_cursor = nil
           setup
         end
 
-        attr_reader :path
-
-        def get(_)
-          @cursor
+        def get(key)
+          @storage ? @storage.get(key) : @cursor
         end
 
-        def put(_, cursor)
+        def put(key, cursor)
+          return @storage.put(key, cursor) if @storage
           @lock.synchronize { @cursor = cursor }
+        end
+
+        def path
+          @path || @storage.path
         end
 
         def start
@@ -38,8 +42,18 @@ module Fluent
         private
 
         def setup
-          return unless @path && File.exist?(@path)
-          @cursor = IO.read(@path).chomp
+          if @storage.persistent
+            migrate_to_storage if @path && File.exist?(@path)
+          elsif @path
+            @cursor = IO.read(@path).chomp if File.exist?(@path)
+            @storage = nil
+          end
+        end
+
+        def migrate_to_storage
+          @storage.put(:journal, IO.read(@path).chomp)
+          File.delete(@path)
+          @path = nil
         end
 
         def work

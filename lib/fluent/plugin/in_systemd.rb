@@ -26,19 +26,18 @@ module Fluent
 
       def configure(conf)
         super
-        @pos_writer = PosWriter.new(@pos_file)
-        @pos_storage = storage_create(usage: "positions")
+        @pos_storage = PosWriter.new(@pos_file, storage_create(usage: "positions"))
         @journal    = nil
       end
 
       def start
         super
-        @pos_writer.start
+        @pos_storage.start
         timer_execute(:in_systemd_emit_worker, 1, &method(:run))
       end
 
       def shutdown
-        @pos_writer.shutdown
+        @pos_storage.shutdown
         super
       end
 
@@ -57,16 +56,12 @@ module Fluent
         false
       end
 
-      def storage
-        @pos_storage.path ?  @pos_storage : @pos_writer
-      end
-
       def seek
-        cursor = storage.get(:journal)
+        cursor = @pos_storage.get(:journal)
         seek_to(cursor || read_from)
       rescue Systemd::JournalError
         log.warn(
-          "Could not seek to cursor #{cursor} found in pos file: #{storage.path}, " \
+          "Could not seek to cursor #{cursor} found in pos file: #{@pos_storage.path}, " \
           "falling back to reading from #{read_from}",
         )
         seek_to(read_from)
@@ -110,7 +105,7 @@ module Fluent
       def watch
         while @journal.move_next
           yield @journal.current_entry
-          storage.put(:journal, @journal.cursor)
+          @pos_storage.put(:journal, @journal.cursor)
         end
       end
     end
