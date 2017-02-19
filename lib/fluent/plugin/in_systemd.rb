@@ -16,9 +16,6 @@ module Fluent
     def configure(conf)
       super
       @pos_writer = PosWriter.new(@pos_file)
-      @journal = Systemd::Journal.new(path: @path)
-      @journal.filter(*@filters)
-      seek
     end
 
     def start
@@ -36,6 +33,16 @@ module Fluent
     end
 
     private
+
+    def init_journal
+      sleep 0.25
+      @journal = Systemd::Journal.new(path: @path)
+      # make sure initial call to wait doesn't return :invalidate
+      # see https://github.com/ledbettj/systemd-journal/issues/70
+      @journal.wait(0)
+      @journal.filter(*@filters)
+      seek
+    end
 
     def seek
       seek_to(@pos_writer.cursor || read_from)
@@ -59,6 +66,7 @@ module Fluent
     end
 
     def run
+      init_journal
       Thread.current.abort_on_exception = true
       watch do |entry|
         begin
@@ -76,7 +84,7 @@ module Fluent
 
     def watch
       while @running
-        next unless @journal.wait(1_000_000)
+        init_journal if @journal.wait(0) == :invalidate
         while @journal.move_next && @running
           yield @journal.current_entry
           @pos_writer.update(@journal.cursor)
