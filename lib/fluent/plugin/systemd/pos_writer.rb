@@ -28,7 +28,6 @@ module Fluent
         end
 
         def update(c)
-          return unless @path
           @lock.synchronize { @cursor = c }
         end
 

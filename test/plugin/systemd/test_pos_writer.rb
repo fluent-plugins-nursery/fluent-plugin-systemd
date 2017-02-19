@@ -20,6 +20,13 @@ class SystemdInputTest < Test::Unit::TestCase
     FileUtils.rm_rf dir
   end
 
+  def test_reading_the_cusor_when_the_path_is_nil
+    pos_writer = Fluent::Plugin::SystemdInput::PosWriter.new(nil)
+    assert_equal pos_writer.cursor, nil
+    pos_writer.update("a_cursor")
+    assert_equal pos_writer.cursor, "a_cursor"
+  end
+
   def test_writing_the_cursor_when_file_does_not_exist_yet
     dir = Dir.mktmpdir("posdir")
     path = "#{dir}/foo.pos"
