@@ -19,9 +19,7 @@ module Fluent
       def configure(conf)
         super
         @pos_writer = PosWriter.new(@pos_file)
-        @journal = Systemd::Journal.new(path: @path)
-        @journal.filter(*@filters)
-        seek
+        init_journal
       end
 
       def start
@@ -37,6 +35,15 @@ module Fluent
 
       private
 
+      def init_journal
+        @journal = Systemd::Journal.new(path: @path)
+        # make sure initial call to wait doesn't return :invalidate
+        # see https://github.com/ledbettj/systemd-journal/issues/70
+        @journal.wait(0)
+        @journal.filter(*@filters)
+        seek
+      end
+
       def seek
         seek_to(@pos_writer.cursor || read_from)
       rescue Systemd::JournalError
@@ -50,8 +57,12 @@ module Fluent
       # record
       def seek_to(pos)
         @journal.seek(pos)
-        return unless pos == :tail
-        @journal.move(-2)
+        return if pos == :head
+        if pos == :tail
+          @journal.move(-2)
+        else
+          @journal.move(1)
+        end
       end
 
       def read_from
@@ -59,7 +70,7 @@ module Fluent
       end
 
       def run
-        Thread.current.abort_on_exception = true
+        init_journal if @journal.wait(0) == :invalidate
         watch do |entry|
           begin
             router.emit(@tag, Fluent::EventTime.from_time(entry.realtime_timestamp), formatted(entry))

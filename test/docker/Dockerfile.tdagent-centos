@@ -12,4 +12,4 @@ COPY Gemfile ./
 COPY fluent-plugin-systemd.gemspec ./
 RUN bundle install
 COPY . .
-RUN rake test
+RUN rake test TESTOPTS="-v"

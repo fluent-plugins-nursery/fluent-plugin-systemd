@@ -145,10 +145,10 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     file.close
     d = create_driver(head_config)
     d.end_if do
-      d.events.size >= 143
+      d.events.size >= 142
     end
     d.run(timeout: 5)
-    assert_equal 143, d.events.size
+    assert_equal 142, d.events.size
   end
 
   def test_reading_from_an_invalid_pos # rubocop:disable Metrics/AbcSize
