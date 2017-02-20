@@ -99,3 +99,4 @@ Many thanks to our fantastic contributors
 * [Richard Megginson](https://github.com/richm)
 * [Masahiro Nakagawa](https://github.com/repeatedly)
 * [Hiroshi Hatake](https://github.com/cosmo0920)
+* [neko-neko](https://github.com/neko-neko)
