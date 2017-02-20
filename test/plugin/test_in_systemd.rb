@@ -3,8 +3,9 @@ require "tempfile"
 require "fluent/plugin/in_systemd"
 
 class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLength
+  include Fluent::Test::Helpers
 
-  def setup
+  def setup # rubocop:disable Metrics/AbcSize
     Fluent::Test.setup
 
     @base_config = %(
@@ -23,6 +24,8 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     @pos_config = base_config + %(
       pos_file #{@pos_path}
     )
+
+    @storage_path = File.join("#{pos_dir}", "storage.json")
 
     @head_config = @pos_config + %(
       read_from_head true
@@ -43,7 +46,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
   end
 
   attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config,
-    :filter_config, :strip_config, :tail_config, :not_present_config
+    :filter_config, :strip_config, :tail_config, :not_present_config, :storage_path
 
   def create_driver(config)
     Fluent::Test::Driver::Input.new(Fluent::Plugin::SystemdInput).configure(config)
@@ -121,10 +124,24 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
   end
 
 
-  def test_pos_file_is_written
-    d = create_driver(pos_config)
+  def test_storage_file_is_written
+    storage_config = config_element("ROOT", "", {
+                                      "tag" => "test",
+                                      "path" => "test/fixture",
+                                      "@id" => "test-01",
+                                    }, [
+                                      config_element("storage", "",
+                                        "@type"      => "local",
+                                        "persistent" => true,
+                                        "path"       => @storage_path
+                                                    ),
+                                    ])
+
+    d = create_driver(storage_config)
     d.run(expect_emits: 1)
-    assert_equal File.read(pos_path), "s=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4" # rubocop:disable Metrics/LineLength
+    storage = JSON.parse(File.read(storage_path))
+    result = storage["journal"]
+    assert_equal result, "s=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4" # rubocop:disable Metrics/LineLength
   end
 
   def test_reading_from_head
@@ -171,7 +188,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     assert_equal 461, d.events.size
     assert_match(
       "Could not seek to cursor thisisinvalid found in pos file: #{pos_path}, falling back to reading from head",
-      d.logs.first,
+      d.logs.last,
     )
   end
 
@@ -207,8 +224,8 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
 
   def test_journal_not_present
     d = create_driver(not_present_config)
-    d.end_if { d.logs.size >= 1 }
+    d.end_if { d.logs.size > 1 }
     d.run(timeout: 5)
-    assert_match "Systemd::JournalError: No such file or directory retrying in 1s", d.logs.first
+    assert_match "Systemd::JournalError: No such file or directory retrying in 1s", d.logs.last
   end
 end
