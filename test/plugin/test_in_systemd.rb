@@ -163,6 +163,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     end
     d.run(timeout: 5)
     assert_equal 461, d.events.size
+    assert_match "Could not seek to cursor thisisinvalid found in pos file: #{pos_path}, falling back to reading from head", d.logs.first
   end
 
   def test_reading_from_the_journal_tail_explicit_setting

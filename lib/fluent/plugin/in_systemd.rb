@@ -47,7 +47,7 @@ module Fluent
       def seek
         seek_to(@pos_writer.cursor || read_from)
       rescue Systemd::JournalError
-        log.warn("Could not seek to cursor #{@pos_writer.cursor} found in pos file: #{@pos_writer.path}")
+        log.warn("Could not seek to cursor #{@pos_writer.cursor} found in pos file: #{@pos_writer.path}, falling back to reading from #{read_from}")
         seek_to(read_from)
       end
 
