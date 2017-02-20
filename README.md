@@ -5,13 +5,13 @@
 # Requirements <a name="requirements"></a>
 
 
-|fluent-plugin-systemd|fluentd|ruby|
+|fluent-plugin-systemd|fluentd|td-agent|ruby|
 |----|----|----|
-| 0.1.x | >= 0.14.11, < 2 | >= 2.1 |
-| 0.0.x | ~> 0.12.0 | >= 1.9  |
+| 0.1.x | >= 0.14.11, < 2 | 3 | >= 2.1 |
+| 0.0.x | ~> 0.12.0       | 2 | >= 1.9  |
 
 * The 0.1.x series is developed from this branch (master)
-* The 0.0.x series (compatible with fluentd v0.12) is developed on the [0.0.x branch](https://github.com/reevoo/fluent-plugin-systemd/tree/0.0.x)
+* The 0.0.x series (compatible with fluentd v0.12, and td-agent 2) is developed on the [0.0.x branch](https://github.com/reevoo/fluent-plugin-systemd/tree/0.0.x)
 
 ## Overview
 
@@ -21,11 +21,11 @@
 
 Simply use RubyGems:
 
-    gem install fluent-plugin-systemd -v 0.1.0
+    gem install fluent-plugin-systemd -v 0.1.1
 
     or
 
-    td-agent-gem install fluent-plugin-systemd -v 0.6.0
+    td-agent-gem install fluent-plugin-systemd -v 0.1.1
 
 ## Configuration
 
