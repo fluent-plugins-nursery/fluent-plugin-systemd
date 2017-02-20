@@ -35,9 +35,15 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     @tail_config = @pos_config + %(
       read_from_head false
     )
+
+    @not_present_config = %(
+      tag test
+      path test/not_a_real_path
+    )
   end
 
-  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config, :filter_config, :strip_config, :tail_config
+  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config,
+    :filter_config, :strip_config, :tail_config, :not_present_config
 
   def create_driver(config)
     Fluent::Test::Driver::Input.new(Fluent::Plugin::SystemdInput).configure(config)
@@ -163,7 +169,10 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     end
     d.run(timeout: 5)
     assert_equal 461, d.events.size
-    assert_match "Could not seek to cursor thisisinvalid found in pos file: #{pos_path}, falling back to reading from head", d.logs.first
+    assert_match(
+      "Could not seek to cursor thisisinvalid found in pos file: #{pos_path}, falling back to reading from head",
+      d.logs.first,
+    )
   end
 
   def test_reading_from_the_journal_tail_explicit_setting
@@ -196,4 +205,10 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     assert_equal(expected, d.events)
   end
 
+  def test_journal_not_present
+    d = create_driver(not_present_config)
+    d.end_if { d.logs.size >= 1 }
+    d.run(timeout: 5)
+    assert_match "Systemd::JournalError: No such file or directory retrying in 1s", d.logs.first
+  end
 end

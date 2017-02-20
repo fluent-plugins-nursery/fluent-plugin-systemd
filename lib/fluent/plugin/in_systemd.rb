@@ -19,7 +19,7 @@ module Fluent
       def configure(conf)
         super
         @pos_writer = PosWriter.new(@pos_file)
-        init_journal
+        @journal    = nil
       end
 
       def start
@@ -42,12 +42,19 @@ module Fluent
         @journal.wait(0)
         @journal.filter(*@filters)
         seek
+        true
+      rescue Systemd::JournalError => e
+        log.warn("#{e.class}: #{e.message} retrying in 1s")
+        false
       end
 
       def seek
         seek_to(@pos_writer.cursor || read_from)
       rescue Systemd::JournalError
-        log.warn("Could not seek to cursor #{@pos_writer.cursor} found in pos file: #{@pos_writer.path}, falling back to reading from #{read_from}")
+        log.warn(
+          "Could not seek to cursor #{@pos_writer.cursor} found in pos file: #{@pos_writer.path}, " \
+          "falling back to reading from #{read_from}",
+        )
         seek_to(read_from)
       end
 
@@ -70,6 +77,7 @@ module Fluent
       end
 
       def run
+        return unless @journal || init_journal
         init_journal if @journal.wait(0) == :invalidate
         watch do |entry|
           begin
