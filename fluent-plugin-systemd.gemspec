@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
 
 
-  spec.files         = Dir["**/**"].reject { |f| f.match(/^(test|spec|features)\//) }
+  spec.files         = Dir["lib/**/**.rb", "README.md", "LICENCE"]
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 1.10"
