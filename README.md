@@ -2,8 +2,18 @@
 
 [![Build Status](https://travis-ci.org/reevoo/fluent-plugin-systemd.svg?branch=master)](https://travis-ci.org/reevoo/fluent-plugin-systemd) [![Code Climate GPA](https://codeclimate.com/github/reevoo/fluent-plugin-systemd/badges/gpa.svg)](https://codeclimate.com/github/reevoo/fluent-plugin-systemd) [![Gem Version](https://badge.fury.io/rb/fluent-plugin-systemd.svg)](https://rubygems.org/gems/fluent-plugin-systemd)
 
-# Requirements <a name="requirements"></a>
+## Overview
 
+**systemd** input plugin reads logs from the systemd journal
+
+## Support
+
+[![Fluentd Slack](http://slack.fluentd.org/badge.svg)](http://slack.fluentd.org/)
+
+Join the #plugin-systemd channel on the [Fluentd Slack](http://slack.fluentd.org/)
+
+
+## Requirements
 
 |fluent-plugin-systemd|fluentd|td-agent|ruby|
 |----|----|----|----|
@@ -12,10 +22,6 @@
 
 * The 0.1.x series is developed from this branch (master)
 * The 0.0.x series (compatible with fluentd v0.12, and td-agent 2) is developed on the [0.0.x branch](https://github.com/reevoo/fluent-plugin-systemd/tree/0.0.x)
-
-## Overview
-
-**systemd** input plugin reads logs from the systemd journal
 
 ## Installation
 
