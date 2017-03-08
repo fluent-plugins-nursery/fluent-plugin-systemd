@@ -35,7 +35,6 @@ module Fluent
     private
 
     def init_journal
-      sleep 0.25
       @journal = Systemd::Journal.new(path: @path)
       # make sure initial call to wait doesn't return :invalidate
       # see https://github.com/ledbettj/systemd-journal/issues/70
@@ -89,6 +88,8 @@ module Fluent
           yield @journal.current_entry
           @pos_writer.update(@journal.cursor)
         end
+        # prevent a loop of death
+        sleep 1
       end
     end
   end
