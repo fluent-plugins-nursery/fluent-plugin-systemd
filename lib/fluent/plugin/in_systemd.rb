@@ -2,6 +2,7 @@
 require "systemd/journal"
 require "fluent/plugin/input"
 require "fluent/plugin/systemd/pos_writer"
+require "fluent/plugin/systemd/entry_mutator"
 
 module Fluent
   module Plugin
@@ -16,7 +17,8 @@ module Fluent
       config_param :filters, :array, default: []
       config_param :pos_file, :string, default: nil, deprecated: "Use <storage> section with `persistent: true' instead"
       config_param :read_from_head, :bool, default: false
-      config_param :strip_underscores, :bool, default: false
+      config_param :strip_underscores, :bool, default: false, deprecated: "Use <entry> section or `systemd_entry` " \
+                                                                          "filter plugin instead"
       config_param :tag, :string
 
       config_section :storage do
@@ -25,10 +27,30 @@ module Fluent
         config_set_default :persistent, false
       end
 
+      config_section :entry, param_name: "entry_opts", required: false, multi: false do
+        config_param :field_map, :hash, default: {}
+        config_param :field_map_strict, :bool, default: false
+        config_param :fields_strip_underscores, :bool, default: false
+        config_param :fields_lowercase, :bool, default: false
+      end
+
       def configure(conf)
         super
         @pos_storage = PosWriter.new(@pos_file, storage_create(usage: "positions"))
         @journal = nil
+        @mutator = nil
+
+        # configure mutator from nested entry config block
+        unless @entry_opts.nil?
+          begin # defer entry config validation to mutator constructor
+            @mutator = Systemd::EntryMutator.new(**@entry_opts.to_h)
+          rescue Systemd::EntryMutator::OptionError => e
+            raise Fluent::ConfigError, e.message
+          end
+          if @entry_opts[:field_map_strict] && @entry_opts[:field_map].empty?
+            log.warn("`field_map_strict` set to true with empty `field_map`, expect no fields")
+          end
+        end
       end
 
       def start
@@ -45,14 +67,14 @@ module Fluent
       private
 
       def init_journal
-        @journal = Systemd::Journal.new(path: @path)
+        @journal = ::Systemd::Journal.new(path: @path)
         # make sure initial call to wait doesn't return :invalidate
         # see https://github.com/ledbettj/systemd-journal/issues/70
         @journal.wait(0)
         @journal.filter(*@filters)
         seek
         true
-      rescue Systemd::JournalError => e
+      rescue ::Systemd::JournalError => e
         log.warn("#{e.class}: #{e.message} retrying in 1s")
         false
       end
@@ -60,7 +82,7 @@ module Fluent
       def seek
         cursor = @pos_storage.get(:journal)
         seek_to(cursor || read_from)
-      rescue Systemd::JournalError
+      rescue ::Systemd::JournalError
         log.warn(
           "Could not seek to cursor #{cursor} found in pos file: #{@pos_storage.path}, " \
           "falling back to reading from #{read_from}",
@@ -107,8 +129,13 @@ module Fluent
       end
 
       def formatted(entry)
-        return entry.to_h unless @strip_underscores
-        Hash[entry.to_h.map { |k, v| [k.gsub(/\A_+/, ""), v] }]
+        if !@mutator.nil?
+          @mutator.run(entry)
+        elsif @strip_underscores # legacy backwards compatibility
+          Hash[entry.to_h.map { |k, v| [k.gsub(/\A_+/, ""), v] }]
+        else
+          entry.to_h
+        end
       end
 
       def watch
