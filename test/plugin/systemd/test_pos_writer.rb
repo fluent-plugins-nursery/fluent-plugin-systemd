@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative "../../helper"
 require "tempfile"
 require "fluent/plugin/systemd/pos_writer"
@@ -67,7 +68,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     pos_writer.start
     pos_writer.put(:journal, "this is the cursor")
     sleep 1
-    assert_equal sprintf("%o", File::Stat.new(path).mode)[-4, 4], "0644"
+    assert_equal format("%o", File::Stat.new(path).mode)[-4, 4], "0644"
     FileUtils.rm_rf dir
   end
 

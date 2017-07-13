@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "fluent/plugin/input"
 
 module Fluent
@@ -66,7 +67,7 @@ module Fluent
         def write_pos
           @lock.synchronize do
             if @written_cursor != @cursor
-              file = File.open(@path, "w+", 0644)
+              file = File.open(@path, "w+", 0o644)
               file.print @cursor
               file.close
               @written_cursor = @cursor

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "systemd/journal"
 require "fluent/plugin/input"
 require "fluent/plugin/systemd/pos_writer"
@@ -9,7 +10,7 @@ module Fluent
 
       helpers :timer, :storage
 
-      DEFAULT_STORAGE_TYPE = "local".freeze
+      DEFAULT_STORAGE_TYPE = "local"
 
       config_param :path, :string, default: "/var/log/journal"
       config_param :filters, :array, default: []
@@ -27,7 +28,7 @@ module Fluent
       def configure(conf)
         super
         @pos_storage = PosWriter.new(@pos_file, storage_create(usage: "positions"))
-        @journal    = nil
+        @journal = nil
       end
 
       def start

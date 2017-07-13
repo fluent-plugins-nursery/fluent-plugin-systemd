@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "bundler/gem_tasks"
 require "rake/testtask"
 require "reevoocop/rake_task"
@@ -14,7 +15,7 @@ task build: "docker:test"
 task default: :reevoocop
 
 namespace :docker do
-  distros = [:ubuntu, :"tdagent-ubuntu", :"tdagent-centos"]
+  distros = %i[ubuntu tdagent-ubuntu tdagent-centos]
   task test: distros
 
   distros.each do |distro|

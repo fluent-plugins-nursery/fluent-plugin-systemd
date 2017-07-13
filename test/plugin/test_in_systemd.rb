@@ -1,3 +1,4 @@
+# rubocop:disable Style/FrozenStringLiteralComment
 require_relative "../helper"
 require "tempfile"
 require "fluent/plugin/in_systemd"
@@ -5,7 +6,7 @@ require "fluent/plugin/in_systemd"
 class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLength
   include Fluent::Test::Helpers
 
-  def setup # rubocop:disable Metrics/AbcSize
+  def setup
     Fluent::Test.setup
 
     @base_config = %(
@@ -25,7 +26,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       pos_file #{@pos_path}
     )
 
-    @storage_path = File.join("#{pos_dir}", "storage.json")
+    @storage_path = File.join(pos_dir.to_s, "storage.json")
 
     @head_config = @pos_config + %(
       read_from_head true
@@ -88,7 +89,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       "_SYSTEMD_SESSION" => "1",
       "_SYSTEMD_OWNER_UID" => "0",
       "_SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
-    ]]
+    ],]
     d.run(expect_emits: 1)
     assert_equal(expected, d.events)
   end
@@ -118,11 +119,10 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       "SYSTEMD_SESSION" => "1",
       "SYSTEMD_OWNER_UID" => "0",
       "SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
-    ]]
+    ],]
     d.run(expect_emits: 1)
     assert_equal(expected, d.events)
   end
-
 
   def test_storage_file_is_written
     storage_config = config_element("ROOT", "", {
@@ -133,8 +133,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
                                       config_element("storage", "",
                                         "@type"      => "local",
                                         "persistent" => true,
-                                        "path"       => @storage_path
-                                                    ),
+                                        "path"       => @storage_path),
                                     ])
 
     d = create_driver(storage_config)
@@ -217,7 +216,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       "_SYSTEMD_SESSION" => "1",
       "_SYSTEMD_OWNER_UID" => "0",
       "_SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
-    ]]
+    ],]
     d.run(expect_emits: 1)
     assert_equal(expected, d.events)
   end
