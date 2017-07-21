@@ -7,7 +7,7 @@ require "fluent/plugin/systemd/entry_mutator"
 class EntryTestData # rubocop:disable ClassLength
   # `Systemd::Journal::Entry` to test with
   ENTRY = lambda {
-    j = ::Systemd::Journal.new(path: "test/fixture")
+    j = Systemd::Journal.new(path: "test/fixture")
     j.wait(0)
     j.seek(:tail)
     j.move(-2)
@@ -125,7 +125,6 @@ class EntryTestData # rubocop:disable ClassLength
 end
 
 class EntryMutatorTest < Test::Unit::TestCase
-  include Fluent::Plugin::Systemd
   # option validation test data in the form:
   # { test_name: option_hash }
   @validation_tests = {
@@ -139,6 +138,10 @@ class EntryMutatorTest < Test::Unit::TestCase
   # mutate test data in the form:
   # { test_name: [transform_params, expected_entry], ... }
   @mutate_tests = {
+    empty_options: [
+      {},
+      EntryTestData::EXPECTED[:no_transform],
+    ],
     fields_strip_underscores: [
       { fields_strip_underscores: true },
       EntryTestData::EXPECTED[:fields_strip_underscores],
@@ -159,26 +162,40 @@ class EntryMutatorTest < Test::Unit::TestCase
 
   data(@validation_tests)
   def test_validation(opt)
-    assert_raise EntryMutator::OptionError do
-      EntryMutator.new(**opt)
+    assert_raise Fluent::ConfigError do
+      Fluent::Plugin::SystemdEntryMutator.new(**opt)
     end
   end
 
   # tests using Systemd::Journal::Entry
+
+  def test_mutate_default_opts_journal_entry
+    m = Fluent::Plugin::SystemdEntryMutator.new
+    mutated = m.run(EntryTestData::ENTRY)
+    assert_equal(EntryTestData::EXPECTED[:no_transform], mutated)
+  end
+
   data(@mutate_tests)
   def test_mutate_with_journal_entry(data)
     options, expected = data
-    f = EntryMutator.new(**options)
-    filtered = f.run(EntryTestData::ENTRY)
-    assert_equal(expected, filtered)
+    m = Fluent::Plugin::SystemdEntryMutator.new(**options)
+    mutated = m.run(EntryTestData::ENTRY)
+    assert_equal(expected, mutated)
   end
 
   # tests using an entry hash
+
+  def test_mutate_default_opts_hash_entry
+    m = Fluent::Plugin::SystemdEntryMutator.new
+    mutated = m.run(EntryTestData::ENTRY.to_h)
+    assert_equal(EntryTestData::EXPECTED[:no_transform], mutated)
+  end
+
   data(@mutate_tests)
   def test_mutate_with_hash_entry(data)
     options, expected = data
-    f = EntryMutator.new(**options)
-    filtered = f.run(EntryTestData::ENTRY.to_h)
-    assert_equal(expected, filtered)
+    m = Fluent::Plugin::SystemdEntryMutator.new(**options)
+    mutated = m.run(EntryTestData::ENTRY.to_h)
+    assert_equal(expected, mutated)
   end
 end

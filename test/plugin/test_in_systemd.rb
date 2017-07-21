@@ -121,7 +121,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
   end
 
   data(@entry_tests)
-  def test_reading_from_the_journal_tail_with_entry_transform(data)
+  def test_reading_from_the_journal_tail_mutate_entry(data)
     conf, expect = data
     d = create_driver(conf)
     expected = [[

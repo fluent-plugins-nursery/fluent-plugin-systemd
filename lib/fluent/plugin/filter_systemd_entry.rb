@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require "fluent/config/error"
 require "fluent/plugin/filter"
 require "fluent/plugin/systemd/entry_mutator"
 
@@ -16,12 +15,8 @@ module Fluent
 
       def configure(conf)
         super
-        begin # defer filter config validation to mutator constructor
-          @mutator = Systemd::EntryMutator.new(**@config_root_section.to_h)
-        rescue Systemd::EntryMutator::OptionError => e
-          raise Fluent::ConfigError, e.message
-        end
-        if @field_map_strict && @field_map.empty?
+        @mutator = SystemdEntryMutator.new(**@config_root_section.to_h)
+        if @mutator.field_map_strict && @mutator.field_map.empty?
           log.warn("`field_map_strict` set to true with empty `field_map`, expect no fields")
         end
       end
