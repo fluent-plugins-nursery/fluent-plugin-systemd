@@ -90,12 +90,17 @@ module Fluent
         return unless @journal || init_journal
         init_journal if @journal.wait(0) == :invalidate
         watch do |entry|
-          begin
-            router.emit(@tag, Fluent::EventTime.from_time(entry.realtime_timestamp), formatted(entry))
-          rescue => e
-            log.error("Exception emitting record: #{e}")
-          end
+          emit(entry)
         end
+      end
+
+      def emit(entry)
+        router.emit(@tag, Fluent::EventTime.from_time(entry.realtime_timestamp), formatted(entry))
+      rescue Fluent::Plugin::Buffer::BufferOverflowError
+        sleep 1
+        retry
+      rescue => e
+        log.error("Exception emitting record: #{e}")
       end
 
       def formatted(entry)
