@@ -96,8 +96,11 @@ module Fluent
 
       def emit(entry)
         router.emit(@tag, Fluent::EventTime.from_time(entry.realtime_timestamp), formatted(entry))
-      rescue Fluent::Plugin::Buffer::BufferOverflowError
-        sleep 1
+      rescue Fluent::Plugin::Buffer::BufferOverflowError => e
+        retries ||= 0
+        raise e if retries > 10
+        retries += 1
+        sleep 1.5**retries + rand(0..3)
         retry
       rescue => e
         log.error("Exception emitting record: #{e}")

@@ -154,13 +154,13 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
 
   class BufferErrorDriver < Fluent::Test::Driver::Input
     def initialize(klass, opts: {}, &block)
-      @called = false
+      @called = 0
       super
     end
 
     def emit_event_stream(tag, es)
-      unless @called
-        @called = true
+      unless @called > 1
+        @called += 1
         fail Fluent::Plugin::Buffer::BufferOverflowError, "buffer space has too many data"
       end
 
