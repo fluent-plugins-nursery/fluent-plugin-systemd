@@ -191,10 +191,11 @@ Issues and pull requests welcome
 
 Many thanks to our fantastic contributors
 
-* [Jesus Rafael Carrillo](https://github.com/jescarri)
-* [Mike Kaplinskiy](https://github.com/mikekap)
-* [Sadayuki Furuhashi](https://github.com/frsyuki)
-* [Richard Megginson](https://github.com/richm)
-* [Masahiro Nakagawa](https://github.com/repeatedly)
 * [Hiroshi Hatake](https://github.com/cosmo0920)
+* [Erik Maciejewski](https://github.com/emacski)
+* [Masahiro Nakagawa](https://github.com/repeatedly)
+* [Richard Megginson](https://github.com/richm)
+* [Mike Kaplinskiy](https://github.com/mikekap)
 * [neko-neko](https://github.com/neko-neko)
+* [Sadayuki Furuhashi](https://github.com/frsyuki)
+* [Jesus Rafael Carrillo](https://github.com/jescarri)
