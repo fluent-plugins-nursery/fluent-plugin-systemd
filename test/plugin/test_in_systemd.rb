@@ -1,10 +1,54 @@
 # rubocop:disable Style/FrozenStringLiteralComment
 require_relative "../helper"
+require_relative "./systemd/test_entry_mutator"
 require "tempfile"
+require "fluent/test/driver/input"
 require "fluent/plugin/in_systemd"
 
 class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLength
   include Fluent::Test::Helpers
+
+  @base_config = %(
+    tag test
+    path test/fixture
+  )
+  # entry test data in the form:
+  # { test_name: [plugin_config, expected_entry], ... }
+  @entry_tests = {
+    fields_strip_underscores: [
+      @base_config + %(
+        <entry>
+          fields_strip_underscores true
+        </entry>
+      ),
+      EntryTestData::EXPECTED[:fields_strip_underscores],
+    ],
+    fields_lowercase: [
+      @base_config + %(
+        <entry>
+          fields_lowercase true
+        </entry>
+      ),
+      EntryTestData::EXPECTED[:fields_lowercase],
+    ],
+    field_map: [
+      @base_config + %(
+        <entry>
+          field_map #{EntryTestData::FIELD_MAP_JSON}
+        </entry>
+      ),
+      EntryTestData::EXPECTED[:field_map],
+    ],
+    field_map_strict: [
+      @base_config + %(
+        <entry>
+          field_map #{EntryTestData::FIELD_MAP_JSON}
+          field_map_strict true
+        </entry>
+      ),
+      EntryTestData::EXPECTED[:field_map_strict],
+    ],
+  }
 
   def setup
     Fluent::Test.setup
@@ -14,6 +58,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       path test/fixture
     )
 
+    # deprecated
     @strip_config = base_config + %(
       strip_underscores true
     )
@@ -69,56 +114,32 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     expected = [[
       "test",
       1_364_519_243,
-      "_UID" => "0",
-      "_GID" => "0",
-      "_BOOT_ID" => "4737ffc504774b3ba67020bc947f1bc0",
-      "_MACHINE_ID" => "bb9d0a52a41243829ecd729b40ac0bce",
-      "_HOSTNAME" => "arch",
-      "PRIORITY" => "5",
-      "_TRANSPORT" => "syslog",
-      "SYSLOG_FACILITY" => "10",
-      "SYSLOG_IDENTIFIER" => "login",
-      "_PID" => "141",
-      "_COMM" => "login",
-      "_EXE" => "/bin/login",
-      "_AUDIT_SESSION" => "1",
-      "_AUDIT_LOGINUID" => "0",
-      "MESSAGE" => "ROOT LOGIN ON tty1",
-      "_CMDLINE" => "login -- root      ",
-      "_SYSTEMD_CGROUP" => "/user/root/1",
-      "_SYSTEMD_SESSION" => "1",
-      "_SYSTEMD_OWNER_UID" => "0",
-      "_SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
+      EntryTestData::EXPECTED[:no_transform],
     ],]
     d.run(expect_emits: 1)
     assert_equal(expected, d.events)
   end
 
-  def test_reading_from_the_journal_tail_with_strip_underscores
+  data(@entry_tests)
+  def test_reading_from_the_journal_tail_mutate_entry(data)
+    conf, expect = data
+    d = create_driver(conf)
+    expected = [[
+      "test",
+      1_364_519_243,
+      expect,
+    ],]
+    d.run(expect_emits: 1)
+    assert_equal(expected, d.events)
+  end
+
+  # deprecated config option for backwards compatibility
+  def test_reading_from_the_journal_tail_with_strip_underscores_legacy
     d = create_driver(strip_config)
     expected = [[
       "test",
       1_364_519_243,
-      "UID" => "0",
-      "GID" => "0",
-      "BOOT_ID" => "4737ffc504774b3ba67020bc947f1bc0",
-      "MACHINE_ID" => "bb9d0a52a41243829ecd729b40ac0bce",
-      "HOSTNAME" => "arch",
-      "PRIORITY" => "5",
-      "TRANSPORT" => "syslog",
-      "SYSLOG_FACILITY" => "10",
-      "SYSLOG_IDENTIFIER" => "login",
-      "PID" => "141",
-      "COMM" => "login",
-      "EXE" => "/bin/login",
-      "AUDIT_SESSION" => "1",
-      "AUDIT_LOGINUID" => "0",
-      "MESSAGE" => "ROOT LOGIN ON tty1",
-      "CMDLINE" => "login -- root      ",
-      "SYSTEMD_CGROUP" => "/user/root/1",
-      "SYSTEMD_SESSION" => "1",
-      "SYSTEMD_OWNER_UID" => "0",
-      "SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
+      EntryTestData::EXPECTED[:fields_strip_underscores],
     ],]
     d.run(expect_emits: 1)
     assert_equal(expected, d.events)
@@ -217,26 +238,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     expected = [[
       "test",
       1_364_519_243,
-      "_UID" => "0",
-      "_GID" => "0",
-      "_BOOT_ID" => "4737ffc504774b3ba67020bc947f1bc0",
-      "_MACHINE_ID" => "bb9d0a52a41243829ecd729b40ac0bce",
-      "_HOSTNAME" => "arch",
-      "PRIORITY" => "5",
-      "_TRANSPORT" => "syslog",
-      "SYSLOG_FACILITY" => "10",
-      "SYSLOG_IDENTIFIER" => "login",
-      "_PID" => "141",
-      "_COMM" => "login",
-      "_EXE" => "/bin/login",
-      "_AUDIT_SESSION" => "1",
-      "_AUDIT_LOGINUID" => "0",
-      "MESSAGE" => "ROOT LOGIN ON tty1",
-      "_CMDLINE" => "login -- root      ",
-      "_SYSTEMD_CGROUP" => "/user/root/1",
-      "_SYSTEMD_SESSION" => "1",
-      "_SYSTEMD_OWNER_UID" => "0",
-      "_SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
+      EntryTestData::EXPECTED[:no_transform],
     ],]
     d.run(expect_emits: 1)
     assert_equal(expected, d.events)

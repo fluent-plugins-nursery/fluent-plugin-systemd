@@ -2,6 +2,7 @@
 require "systemd/journal"
 require "fluent/plugin/input"
 require "fluent/plugin/systemd/pos_writer"
+require "fluent/plugin/systemd/entry_mutator"
 
 module Fluent
   module Plugin
@@ -16,7 +17,8 @@ module Fluent
       config_param :filters, :array, default: []
       config_param :pos_file, :string, default: nil, deprecated: "Use <storage> section with `persistent: true' instead"
       config_param :read_from_head, :bool, default: false
-      config_param :strip_underscores, :bool, default: false
+      config_param :strip_underscores, :bool, default: false, deprecated: "Use <entry> section or `systemd_entry` " \
+                                                                          "filter plugin instead"
       config_param :tag, :string
 
       config_section :storage do
@@ -25,10 +27,24 @@ module Fluent
         config_set_default :persistent, false
       end
 
+      config_section :entry, param_name: "entry_opts", required: false, multi: false do
+        config_param :field_map, :hash, default: {}
+        config_param :field_map_strict, :bool, default: false
+        config_param :fields_strip_underscores, :bool, default: false
+        config_param :fields_lowercase, :bool, default: false
+      end
+
       def configure(conf)
         super
-        @pos_storage = PosWriter.new(@pos_file, storage_create(usage: "positions"))
         @journal = nil
+        @pos_storage = PosWriter.new(@pos_file, storage_create(usage: "positions"))
+        # legacy strip_underscores backwards compatibility (legacy takes
+        # precedence and is mutually exclusive with the entry block)
+        mut_opts = @strip_underscores ? { fields_strip_underscores: true } : @entry_opts.to_h
+        @mutator = SystemdEntryMutator.new(**mut_opts)
+        if @mutator.field_map_strict && @mutator.field_map.empty?
+          log.warn("`field_map_strict` set to true with empty `field_map`, expect no fields")
+        end
       end
 
       def start
@@ -107,8 +123,7 @@ module Fluent
       end
 
       def formatted(entry)
-        return entry.to_h unless @strip_underscores
-        Hash[entry.to_h.map { |k, v| [k.gsub(/\A_+/, ""), v] }]
+        @mutator.run(entry)
       end
 
       def watch
