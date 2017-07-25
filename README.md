@@ -177,11 +177,17 @@ To run the tests with docker on several distros simply run `rake`
 
 For systems with systemd installed you can run the tests against your installed libsystemd with `rake test`
 
-## Licence etc
+## Licence
 
 [MIT](LICENCE)
 
-Issues and pull requests welcome
+## Contributions
+
+Issues and pull requests are very welcome.
+
+If you want to make a contribution but need some help or advice feel free to message me @errm on the [Fluentd Slack](http://slack.fluentd.org/), or send me an email ed@reevoo.com.
+
+We have adopted the [Contributor Covenant](CODE_OF_CONDUCT.md) and thus expect anyone interacting with contributors, maintainers and users of this project to abide by it.
 
 ## Maintainer
 
