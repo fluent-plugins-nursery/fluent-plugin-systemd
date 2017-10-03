@@ -50,7 +50,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     ],
   }
 
-  def setup
+  def setup # rubocop:disable Metrics/AbcSize
     Fluent::Test.setup
 
     @base_config = %(

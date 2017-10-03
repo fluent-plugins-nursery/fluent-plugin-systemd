@@ -6,7 +6,7 @@ require "fluent/plugin/systemd/entry_mutator"
 
 module Fluent
   module Plugin
-    class SystemdInput < Input
+    class SystemdInput < Input # rubocop:disable Metrics/ClassLength
       Fluent::Plugin.register_input("systemd", self)
 
       helpers :timer, :storage
