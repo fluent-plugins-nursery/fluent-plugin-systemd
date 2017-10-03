@@ -216,3 +216,4 @@ Many thanks to our fantastic contributors
 * [neko-neko](https://github.com/neko-neko)
 * [Sadayuki Furuhashi](https://github.com/frsyuki)
 * [Jesus Rafael Carrillo](https://github.com/jescarri)
+* [John Thomas Wile II](https://github.com/jtwile2)
