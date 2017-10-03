@@ -167,6 +167,17 @@ The resulting entry using the above sample configuration:
 }
 ```
 
+## Common Issues
+
+> ### When I look at fluentd logs, everything looks fine but no journal logs are read
+
+This is commonly caused when the user running fluentd does not have enough permisions
+to read the systemd journal.
+
+Acording to the [systemd documentation](https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html):
+> Journal files are, by default, owned and readable by the "systemd-journal" system group but are not writable. Adding a user to this group thus enables her/him to read the journal files.
+
+
 ## Dependencies
 
 This plugin depends on libsystemd
