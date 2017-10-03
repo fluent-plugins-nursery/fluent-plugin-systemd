@@ -61,6 +61,8 @@ module Fluent
       private
 
       def init_journal
+        # TODO: ruby 2.3
+        @journal.close if @journal # rubocop:disable Style/SafeNavigation
         @journal = Systemd::Journal.new(path: @path)
         # make sure initial call to wait doesn't return :invalidate
         # see https://github.com/ledbettj/systemd-journal/issues/70
