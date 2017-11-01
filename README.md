@@ -44,7 +44,7 @@ or
       read_from_head true
       <storage>
         @type local
-        persistent true
+        persistent false
         path kube-proxy.pos
       </storage>
       <entry>
