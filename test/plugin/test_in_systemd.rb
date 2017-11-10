@@ -1,4 +1,3 @@
-# rubocop:disable Style/FrozenStringLiteralComment
 require_relative "../helper"
 require_relative "./systemd/test_entry_mutator"
 require "tempfile"
