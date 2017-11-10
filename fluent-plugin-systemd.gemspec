@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.name          = "fluent-plugin-systemd"
   spec.version       = "0.3.1"
   spec.authors       = ["Ed Robinson"]
-  spec.email         = ["ed@reevoo.com"]
+  spec.email         = ["edward-robinson@cookpad.com"]
 
   spec.summary       = "Input plugin to read from systemd journal."
   spec.description   = "This is a fluentd input plugin. It reads logs from the systemd journal."

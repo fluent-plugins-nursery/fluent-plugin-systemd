@@ -196,7 +196,7 @@ For systems with systemd installed you can run the tests against your installed 
 
 Issues and pull requests are very welcome.
 
-If you want to make a contribution but need some help or advice feel free to message me @errm on the [Fluentd Slack](http://slack.fluentd.org/), or send me an email ed@reevoo.com.
+If you want to make a contribution but need some help or advice feel free to message me @errm on the [Fluentd Slack](http://slack.fluentd.org/), or send me an email edward-robinson@cookpad.com
 
 We have adopted the [Contributor Covenant](CODE_OF_CONDUCT.md) and thus expect anyone interacting with contributors, maintainers and users of this project to abide by it.
 
@@ -217,3 +217,4 @@ Many thanks to our fantastic contributors
 * [Sadayuki Furuhashi](https://github.com/frsyuki)
 * [Jesus Rafael Carrillo](https://github.com/jescarri)
 * [John Thomas Wile II](https://github.com/jtwile2)
+* [Kazuhiro Suzuki](https://github.com/ksauzz)
