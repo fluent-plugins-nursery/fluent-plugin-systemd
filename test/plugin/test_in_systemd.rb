@@ -12,6 +12,12 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       path test/fixture
     )
 
+    @badmsg_config = %(
+      tag test
+      path test/fixture/corrupt
+      read_from_head true
+    )
+
     @strip_config = base_config + %(
       strip_underscores true
     )
@@ -37,7 +43,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     )
   end
 
-  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config, :filter_config, :strip_config, :tail_config
+  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config, :filter_config, :strip_config, :tail_config, :badmsg_config
 
   def create_driver(config)
     Fluent::Test::InputTestDriver.new(Fluent::SystemdInput).configure(config)
@@ -178,6 +184,12 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       "_SOURCE_REALTIME_TIMESTAMP" => "1364519243563178",
     )
     d.run
+  end
+
+  def test_continue_on_bad_message
+    d = create_driver(badmsg_config)
+    d.run
+    assert_equal 460, d.events.size
   end
 
 end

@@ -85,7 +85,12 @@ module Fluent
       while @running
         init_journal if @journal.wait(0) == :invalidate
         while @journal.move_next && @running
-          yield @journal.current_entry
+          begin
+            yield @journal.current_entry
+          rescue Systemd::JournalError => e
+            log.warn("Error Parsing Journal: #{e.class}: #{e.message}")
+            next
+          end
           @pos_writer.update(@journal.cursor)
         end
         # prevent a loop of death
