@@ -43,7 +43,8 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     )
   end
 
-  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config, :filter_config, :strip_config, :tail_config, :badmsg_config
+  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config,
+    :filter_config, :strip_config, :tail_config, :badmsg_config
 
   def create_driver(config)
     Fluent::Test::InputTestDriver.new(Fluent::SystemdInput).configure(config)
@@ -118,7 +119,6 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     d.run
   end
 
-
   def test_pos_file_is_written
     d = create_driver(pos_config)
     d.run
@@ -146,7 +146,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     assert_equal 143, d.emits.size
   end
 
-  def test_reading_from_an_invalid_pos # rubocop:disable Metrics/AbcSize
+  def test_reading_from_an_invalid_pos
     file = File.open(pos_path, "w+")
     file.print "thisisinvalid"
     file.close
