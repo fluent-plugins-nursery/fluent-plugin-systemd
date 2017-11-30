@@ -26,11 +26,11 @@ if you are using fluentd v0.14 for the latest and greatest features
 
 Simply use RubyGems:
 
-    gem install fluent-plugin-systemd -v 0.0.7
+    gem install fluent-plugin-systemd -v 0.0.9
 
     or
 
-    td-agent-gem install fluent-plugin-systemd -v 0.0.7
+    td-agent-gem install fluent-plugin-systemd -v 0.0.9
 
 ## Configuration
 
