@@ -44,15 +44,24 @@ module Fluent
 
         def setup
           if @storage.persistent
-            migrate_to_storage if @path && File.exist?(@path)
+            migrate_to_storage
           elsif @path
-            @cursor = IO.read(@path).chomp if File.exist?(@path)
+            @cursor = read_legacy_pos if legacy_file?
             @storage = nil
           end
         end
 
+        def legacy_file?
+          @path && File.exist?(@path)
+        end
+
+        def read_legacy_pos
+          IO.read(@path).chomp
+        end
+
         def migrate_to_storage
-          @storage.put(:journal, IO.read(@path).chomp)
+          return unless legacy_file?
+          @storage.put(:journal, read_legacy_pos)
           File.delete(@path)
           @path = nil
         end

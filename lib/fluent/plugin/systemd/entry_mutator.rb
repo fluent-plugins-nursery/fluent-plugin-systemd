@@ -69,13 +69,11 @@ module Fluent
       # entry hash.
       # entry - hash or `Systemd::Journal:Entry`
       def map_fields(entry)
-        mapped = {}
-        @map.each do |cstm, sysds|
+        @map.each_with_object({}) do |(cstm, sysds), mapped|
           vals = sysds.collect { |fld| entry[fld] }.compact
           next if vals.empty? # systemd field does not exist in source entry
-          mapped[cstm] = vals.length == 1 ? vals[0] : vals.join(" ")
+          mapped[cstm] = join_if_needed(vals)
         end
-        mapped
       end
 
       # Run field formatting (mutations applied to all non-mapped fields)
@@ -84,19 +82,28 @@ module Fluent
       # mapped - Optional hash that represents a previously mapped entry to
       #          which the formatted fields will be added
       def format_fields(entry, mapped = nil)
-        mapped ||= {}
-        entry.each do |fld, val|
+        entry.each_with_object(mapped || {}) do |(fld, val), formatted_entry|
           # don't mess with explicitly mapped fields
           next if @map_src_fields.include?(fld)
-          fld = fld.gsub(/\A_+/, "") if @opts.fields_strip_underscores
-          fld = fld.downcase if @opts.fields_lowercase
+          fld = format_field_name(fld)
           # account for mapping (appending) to an existing systemd field
-          mapped[fld] = mapped.key?(fld) ? [val, mapped[fld]].join(" ") : val
+          formatted_entry[fld] = join_if_needed([val, mapped[fld]])
         end
-        mapped
       end
 
       private
+
+      def join_if_needed(values)
+        values.compact!
+        return values.first if values.length == 1
+        values.join(" ")
+      end
+
+      def format_field_name(name)
+        name = name.gsub(/\A_+/, "") if @opts.fields_strip_underscores
+        name = name.downcase if @opts.fields_lowercase
+        name
+      end
 
       # Returns a `SystemdEntryMutator::Options` struct derived from the
       # elements in the supplied hash merged with the option defaults
@@ -109,29 +116,22 @@ module Fluent
       end
 
       def validate_options(opts)
-        unless validate_strings_or_empty(opts[:field_map].keys)
-          err = "`field_map` keys must be strings"
-        end
-        unless validate_strings_or_empty(opts[:field_map].values, true)
-          err = "`field_map` values must be strings or array of strings"
-        end
+        validate_all_strings opts[:field_map].keys, "`field_map` keys must be strings"
+        validate_all_strings opts[:field_map].values, "`field_map` values must be strings or an array of strings", true
         %i[field_map_strict fields_strip_underscores fields_lowercase].each do |opt|
-          err = "`#{opt}` must be boolean" unless [true, false].include?(opts[opt])
+          validate_boolean opts[opt], opt
         end
-        fail Fluent::ConfigError, err unless err.nil?
       end
 
-      # Validates that values in array `arr` are strings. If `nested` is true
-      # also allow and validate that `arr` values can be an array of strings
-      def validate_strings_or_empty(arr, nested = false)
-        return true if arr.empty?
-        arr.each do |v|
-          return true if v.is_a?(String)
-          if v.is_a?(Array) && nested
-            v.each { |nstd| return false unless nstd.is_a?(String) }
-          end
+      def validate_all_strings(arr, message, allow_nesting = false)
+        valid = arr.all? do |value|
+          value.is_a?(String) || allow_nesting && value.is_a?(Array) && value.all? { |key| key.is_a?(String) }
         end
-        false
+        fail Fluent::ConfigError, message unless valid
+      end
+
+      def validate_boolean(value, name)
+        fail Fluent::ConfigError, "`#{name}` must be boolean" unless [true, false].include?(value)
       end
 
       # Compute the inverse of a human friendly field map `fm` which is what
