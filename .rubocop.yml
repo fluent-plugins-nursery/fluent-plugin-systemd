@@ -1,0 +1,17 @@
+AllCops:
+  Exclude:
+    - '*.gemspec'
+
+Metrics/LineLength:
+  Max: 120
+  Exclude:
+    - 'test/**/*'
+Metrics/ClassLength:
+  Exclude:
+    - 'test/**/*'
+Metrics/AbcSize:
+  Exclude:
+    - 'test/**/*'
+Metrics/MethodLength:
+  Exclude:
+    - 'test/**/*'

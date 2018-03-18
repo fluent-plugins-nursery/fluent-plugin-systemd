@@ -1,10 +1,12 @@
-require_relative "../helper"
-require_relative "./systemd/test_entry_mutator"
-require "tempfile"
-require "fluent/test/driver/input"
-require "fluent/plugin/in_systemd"
+# frozen_string_literal: true
 
-class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLength
+require_relative '../helper'
+require_relative './systemd/test_entry_mutator'
+require 'tempfile'
+require 'fluent/test/driver/input'
+require 'fluent/plugin/in_systemd'
+
+class SystemdInputTest < Test::Unit::TestCase
   include Fluent::Test::Helpers
 
   @base_config = %(
@@ -20,7 +22,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
           fields_strip_underscores true
         </entry>
       ),
-      EntryTestData::EXPECTED[:fields_strip_underscores],
+      EntryTestData::EXPECTED[:fields_strip_underscores]
     ],
     fields_lowercase: [
       @base_config + %(
@@ -28,7 +30,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
           fields_lowercase true
         </entry>
       ),
-      EntryTestData::EXPECTED[:fields_lowercase],
+      EntryTestData::EXPECTED[:fields_lowercase]
     ],
     field_map: [
       @base_config + %(
@@ -36,7 +38,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
           field_map #{EntryTestData::FIELD_MAP_JSON}
         </entry>
       ),
-      EntryTestData::EXPECTED[:field_map],
+      EntryTestData::EXPECTED[:field_map]
     ],
     field_map_strict: [
       @base_config + %(
@@ -45,11 +47,11 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
           field_map_strict true
         </entry>
       ),
-      EntryTestData::EXPECTED[:field_map_strict],
-    ],
+      EntryTestData::EXPECTED[:field_map_strict]
+    ]
   }
 
-  def setup # rubocop:disable Metrics/AbcSize
+  def setup
     Fluent::Test.setup
 
     @base_config = %(
@@ -68,7 +70,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       strip_underscores true
     )
 
-    pos_dir = Dir.mktmpdir("posdir")
+    pos_dir = Dir.mktmpdir('posdir')
 
     @pos_path = "#{pos_dir}/foo.pos"
 
@@ -76,7 +78,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       pos_file #{@pos_path}
     )
 
-    @storage_path = File.join(pos_dir.to_s, "storage.json")
+    @storage_path = File.join(pos_dir.to_s, 'storage.json')
 
     @head_config = @pos_config + %(
       read_from_head true
@@ -97,8 +99,8 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
   end
 
   attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config,
-    :filter_config, :strip_config, :tail_config, :not_present_config,
-    :badmsg_config, :storage_path
+              :filter_config, :strip_config, :tail_config, :not_present_config,
+              :badmsg_config, :storage_path
 
   def create_driver(config)
     Fluent::Test::Driver::Input.new(Fluent::Plugin::SystemdInput).configure(config)
@@ -106,22 +108,22 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
 
   def test_configure_requires_tag
     assert_raise Fluent::ConfigError do
-      create_driver("")
+      create_driver('')
     end
   end
 
   def test_configuring_tag
     d = create_driver(base_config)
-    assert_equal d.instance.tag, "test"
+    assert_equal d.instance.tag, 'test'
   end
 
   def test_reading_from_the_journal_tail
     d = create_driver(base_config)
     expected = [[
-      "test",
+      'test',
       1_364_519_243,
-      EntryTestData::EXPECTED[:no_transform],
-    ],]
+      EntryTestData::EXPECTED[:no_transform]
+    ]]
     d.run(expect_emits: 1)
     assert_equal(expected, d.events)
   end
@@ -131,10 +133,10 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     conf, expect = data
     d = create_driver(conf)
     expected = [[
-      "test",
+      'test',
       1_364_519_243,
-      expect,
-    ],]
+      expect
+    ]]
     d.run(expect_emits: 1)
     assert_equal(expected, d.events)
   end
@@ -143,31 +145,31 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
   def test_reading_from_the_journal_tail_with_strip_underscores_legacy
     d = create_driver(strip_config)
     expected = [[
-      "test",
+      'test',
       1_364_519_243,
-      EntryTestData::EXPECTED[:fields_strip_underscores],
-    ],]
+      EntryTestData::EXPECTED[:fields_strip_underscores]
+    ]]
     d.run(expect_emits: 1)
     assert_equal(expected, d.events)
   end
 
   def test_storage_file_is_written
-    storage_config = config_element("ROOT", "", {
-                                      "tag" => "test",
-                                      "path" => "test/fixture",
-                                      "@id" => "test-01",
+    storage_config = config_element('ROOT', '', {
+                                      'tag' => 'test',
+                                      'path' => 'test/fixture',
+                                      '@id' => 'test-01'
                                     }, [
-                                      config_element("storage", "",
-                                        "@type"      => "local",
-                                        "persistent" => true,
-                                        "path"       => @storage_path),
+                                      config_element('storage', '',
+                                                     '@type'      => 'local',
+                                                     'persistent' => true,
+                                                     'path'       => @storage_path)
                                     ])
 
     d = create_driver(storage_config)
     d.run(expect_emits: 1)
     storage = JSON.parse(File.read(storage_path))
-    result = storage["journal"]
-    assert_equal result, "s=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4" # rubocop:disable Metrics/LineLength
+    result = storage['journal']
+    assert_equal result, 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4'
   end
 
   def test_reading_from_head
@@ -185,10 +187,10 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
       super
     end
 
-    def emit_event_stream(tag, es)
+    def emit_event_stream(tag, event_stream)
       unless @called > 1
         @called += 1
-        fail Fluent::Plugin::Buffer::BufferOverflowError, "buffer space has too many data"
+        raise Fluent::Plugin::Buffer::BufferOverflowError, 'buffer space has too many data'
       end
 
       super
@@ -210,8 +212,8 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
   end
 
   def test_reading_from_a_pos
-    file = File.open(pos_path, "w+")
-    file.print "s=add4782f78ca4b6e84aa88d34e5b4a9d;i=13f;b=4737ffc504774b3ba67020bc947f1bc0;m=ffadd;t=4d905e49a6291;x=9a11dd9ffee96e9f" # rubocop:disable Metrics/LineLength
+    file = File.open(pos_path, 'w+')
+    file.print 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=13f;b=4737ffc504774b3ba67020bc947f1bc0;m=ffadd;t=4d905e49a6291;x=9a11dd9ffee96e9f'
     file.close
     d = create_driver(head_config)
     d.end_if do
@@ -221,9 +223,9 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     assert_equal 142, d.events.size
   end
 
-  def test_reading_from_an_invalid_pos # rubocop:disable Metrics/AbcSize
-    file = File.open(pos_path, "w+")
-    file.print "thisisinvalid"
+  def test_reading_from_an_invalid_pos
+    file = File.open(pos_path, 'w+')
+    file.print 'thisisinvalid'
     file.close
 
     # It continues as if the pos file did not exist
@@ -235,17 +237,17 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     assert_equal 461, d.events.size
     assert_match(
       "Could not seek to cursor thisisinvalid found in pos file: #{pos_path}, falling back to reading from head",
-      d.logs.last,
+      d.logs.last
     )
   end
 
   def test_reading_from_the_journal_tail_explicit_setting
     d = create_driver(tail_config)
     expected = [[
-      "test",
+      'test',
       1_364_519_243,
-      EntryTestData::EXPECTED[:no_transform],
-    ],]
+      EntryTestData::EXPECTED[:no_transform]
+    ]]
     d.run(expect_emits: 1)
     assert_equal(expected, d.events)
   end
@@ -254,7 +256,7 @@ class SystemdInputTest < Test::Unit::TestCase # rubocop:disable Metrics/ClassLen
     d = create_driver(not_present_config)
     d.end_if { d.logs.size > 1 }
     d.run(timeout: 5)
-    assert_match "Systemd::JournalError: No such file or directory retrying in 1s", d.logs.last
+    assert_match 'Systemd::JournalError: No such file or directory retrying in 1s', d.logs.last
   end
 
   def test_continue_on_bad_message

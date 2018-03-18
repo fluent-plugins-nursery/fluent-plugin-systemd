@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-require "fluent/config/error"
+
+require 'fluent/config/error'
 
 module Fluent
   module Plugin
@@ -19,12 +20,11 @@ module Fluent
     #   "<new_field2>" => ["<source_field2>"]
     # }
     class SystemdEntryMutator
-
       Options = Struct.new(
         :field_map,
         :field_map_strict,
         :fields_lowercase,
-        :fields_strip_underscores,
+        :fields_strip_underscores
       )
 
       def self.default_opts
@@ -54,6 +54,10 @@ module Fluent
       def method_missing(sym, *args)
         return @opts[sym] if @opts.members.include?(sym)
         super
+      end
+
+      def respond_to_missing?(sym, include_private = false)
+        @opts.members.include?(sym) || super
       end
 
       # The main run method that performs all configured mutations, if any,
@@ -91,16 +95,21 @@ module Fluent
         end
       end
 
+      def warnings
+        return [] unless field_map_strict && field_map.empty?
+        '`field_map_strict` set to true with empty `field_map`, expect no fields'
+      end
+
       private
 
       def join_if_needed(values)
         values.compact!
         return values.first if values.length == 1
-        values.join(" ")
+        values.join(' ')
       end
 
       def format_field_name(name)
-        name = name.gsub(/\A_+/, "") if @opts.fields_strip_underscores
+        name = name.gsub(/\A_+/, '') if @opts.fields_strip_underscores
         name = name.downcase if @opts.fields_lowercase
         name
       end
@@ -116,8 +125,8 @@ module Fluent
       end
 
       def validate_options(opts)
-        validate_all_strings opts[:field_map].keys, "`field_map` keys must be strings"
-        validate_all_strings opts[:field_map].values, "`field_map` values must be strings or an array of strings", true
+        validate_all_strings opts[:field_map].keys, '`field_map` keys must be strings'
+        validate_all_strings opts[:field_map].values, '`field_map` values must be strings or an array of strings', true
         %i[field_map_strict fields_strip_underscores fields_lowercase].each do |opt|
           validate_boolean opts[opt], opt
         end
@@ -127,21 +136,21 @@ module Fluent
         valid = arr.all? do |value|
           value.is_a?(String) || allow_nesting && value.is_a?(Array) && value.all? { |key| key.is_a?(String) }
         end
-        fail Fluent::ConfigError, message unless valid
+        raise Fluent::ConfigError, message unless valid
       end
 
       def validate_boolean(value, name)
-        fail Fluent::ConfigError, "`#{name}` must be boolean" unless [true, false].include?(value)
+        raise Fluent::ConfigError, "`#{name}` must be boolean" unless [true, false].include?(value)
       end
 
-      # Compute the inverse of a human friendly field map `fm` which is what
+      # Compute the inverse of a human friendly field map `field_map` which is what
       # the mutator uses for the actual mapping. The resulting structure for
       # the inverse field map hash is:
       # {"<new_field_name>" => ["<source_field_name>", ...], ...}
-      def invert_field_map(fm)
+      def invert_field_map(field_map)
         invs = {}
-        fm.values.flatten.uniq.each do |cstm|
-          sysds = fm.select { |_, v| (v == cstm || v.include?(cstm)) }
+        field_map.values.flatten.uniq.each do |cstm|
+          sysds = field_map.select { |_, v| (v == cstm || v.include?(cstm)) }
           invs[cstm] = sysds.keys
         end
         invs
