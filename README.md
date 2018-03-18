@@ -23,6 +23,7 @@ Join the #plugin-systemd channel on the [Fluentd Slack](http://slack.fluentd.org
 
 * The 0.x.x series is developed from this branch (master)
 * The 0.0.x series (compatible with fluentd v0.12, and td-agent 2) is developed on the [0.0.x branch](https://github.com/reevoo/fluent-plugin-systemd/tree/0.0.x)
+* The next version is currently under development on the [1.0.0 branch](https://github.com/reevoo/fluent-plugin-systemd/tree/1.0.0) it's progress is tracked [here](https://github.com/reevoo/fluent-plugin-systemd/issues/53)
 
 ## Installation
 
