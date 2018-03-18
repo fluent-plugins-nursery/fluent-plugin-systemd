@@ -22,12 +22,7 @@ namespace :docker do
   distros.each do |distro|
     task distro do
       puts "testing on #{distro}"
-      begin
-        FileUtils.cp("test/docker/Dockerfile.#{distro}", 'Dockerfile')
-        sh 'docker build .'
-      ensure
-        FileUtils.rm('Dockerfile')
-      end
+      sh "docker build . -f test/docker/Dockerfile.#{distro}"
     end
   end
 end
