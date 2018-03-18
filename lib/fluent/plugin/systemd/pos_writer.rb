@@ -1,9 +1,19 @@
 # frozen_string_literal: true
-require "fluent/plugin/input"
+
+require 'fluent/plugin/input'
 
 module Fluent
   module Plugin
     class SystemdInput < Input
+      # This is used to write the systemd cursor to the configured storage
+      # We do this periodicly in a thread so as to not contend on resources
+      # that might be needed for more important tasks.
+      #
+      # When signaled to shutdown we ensure that the most recent cursor
+      # has been written.
+      #
+      # If fluentd stops runnning without cleanly shutting down PosWriter
+      # the cursor could be up to 1 second stale
       class PosWriter
         def initialize(pos_file, storage)
           @path = pos_file
@@ -76,7 +86,7 @@ module Fluent
         def write_pos
           @lock.synchronize do
             if @written_cursor != @cursor
-              file = File.open(@path, "w+", 0o644)
+              file = File.open(@path, 'w+', 0o644)
               file.print @cursor
               file.close
               @written_cursor = @cursor
