@@ -7,7 +7,7 @@ RUN apt-get update -q \
         ca-certificates \
         libsystemd0 \
       && curl https://packages.treasuredata.com/GPG-KEY-td-agent | apt-key add - \
-      && echo "deb http://packages.treasuredata.com/2/ubuntu/xenial/ xenial contrib" > /etc/apt/sources.list.d/treasure-data.list \
+      && echo "deb http://packages.treasuredata.com/3/ubuntu/xenial/ xenial contrib" > /etc/apt/sources.list.d/treasure-data.list \
       && apt-get update \
       && apt-get install -y td-agent \
       && apt-get clean \
@@ -22,4 +22,4 @@ COPY Gemfile ./
 COPY fluent-plugin-systemd.gemspec ./
 RUN bundle check || bundle install
 COPY . .
-RUN rake test TESTOPTS="-v"
+RUN bundle exec rake test TESTOPTS="-v"
