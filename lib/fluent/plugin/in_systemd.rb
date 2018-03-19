@@ -17,8 +17,6 @@ module Fluent
       config_param :path, :string, default: '/var/log/journal'
       config_param :filters, :array, default: []
       config_param :read_from_head, :bool, default: false
-      config_param :strip_underscores, :bool, default: false, deprecated: 'Use <entry> section or `systemd_entry` ' \
-                                                                          'filter plugin instead'
       config_param :tag, :string
 
       config_section :storage do
@@ -38,10 +36,7 @@ module Fluent
         super
         @journal = nil
         @pos_storage = storage_create(usage: 'positions')
-        # legacy strip_underscores backwards compatibility (legacy takes
-        # precedence and is mutually exclusive with the entry block)
-        mut_opts = @strip_underscores ? { fields_strip_underscores: true } : @entry_opts.to_h
-        @mutator = SystemdEntryMutator.new(**mut_opts)
+        @mutator = SystemdEntryMutator.new(**@entry_opts.to_h)
         @mutator.warnings.each { |warning| log.warn(warning) }
       end
 
