@@ -2,13 +2,12 @@
 
 require 'systemd/journal'
 require 'fluent/plugin/input'
-require 'fluent/plugin/systemd/pos_writer'
 require 'fluent/plugin/systemd/entry_mutator'
 
 module Fluent
   module Plugin
     # Fluentd plugin for reading from the systemd journal
-    class SystemdInput < Input # rubocop:disable Metrics/ClassLength
+    class SystemdInput < Input
       Fluent::Plugin.register_input('systemd', self)
 
       helpers :timer, :storage
@@ -17,7 +16,6 @@ module Fluent
 
       config_param :path, :string, default: '/var/log/journal'
       config_param :filters, :array, default: []
-      config_param :pos_file, :string, default: nil, deprecated: "Use <storage> section with `persistent: true' instead"
       config_param :read_from_head, :bool, default: false
       config_param :strip_underscores, :bool, default: false, deprecated: 'Use <entry> section or `systemd_entry` ' \
                                                                           'filter plugin instead'
@@ -39,7 +37,7 @@ module Fluent
       def configure(conf)
         super
         @journal = nil
-        @pos_storage = PosWriter.new(@pos_file, storage_create(usage: 'positions'))
+        @pos_storage = storage_create(usage: 'positions')
         # legacy strip_underscores backwards compatibility (legacy takes
         # precedence and is mutually exclusive with the entry block)
         mut_opts = @strip_underscores ? { fields_strip_underscores: true } : @entry_opts.to_h
@@ -49,13 +47,7 @@ module Fluent
 
       def start
         super
-        @pos_storage.start
         timer_execute(:in_systemd_emit_worker, 1, &method(:run))
-      end
-
-      def shutdown
-        @pos_storage.shutdown
-        super
       end
 
       private
@@ -80,7 +72,7 @@ module Fluent
         seek_to(cursor || read_from)
       rescue Systemd::JournalError
         log.warn(
-          "Could not seek to cursor #{cursor} found in pos file: #{@pos_storage.path}, " \
+          "Could not seek to cursor #{cursor} found in position file: #{@pos_storage.path}, " \
           "falling back to reading from #{read_from}"
         )
         seek_to(read_from)

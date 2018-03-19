@@ -70,17 +70,17 @@ class SystemdInputTest < Test::Unit::TestCase
       strip_underscores true
     )
 
-    pos_dir = Dir.mktmpdir('posdir')
+    @storage_path = File.join(Dir.mktmpdir('pos_dir'), 'storage.json')
 
-    @pos_path = "#{pos_dir}/foo.pos"
-
-    @pos_config = base_config + %(
-      pos_file #{@pos_path}
+    @storage_config = @base_config + %(
+      <storage>
+        @type local
+        persistent true
+        path #{storage_path}
+      </storage>
     )
 
-    @storage_path = File.join(pos_dir.to_s, 'storage.json')
-
-    @head_config = @pos_config + %(
+    @head_config = @storage_config + %(
       read_from_head true
     )
 
@@ -88,7 +88,7 @@ class SystemdInputTest < Test::Unit::TestCase
       filters [{ "_SYSTEMD_UNIT": "systemd-journald.service" }]
     )
 
-    @tail_config = @pos_config + %(
+    @tail_config = @storage_config + %(
       read_from_head false
     )
 
@@ -98,12 +98,20 @@ class SystemdInputTest < Test::Unit::TestCase
     )
   end
 
-  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config,
+  attr_reader :journal, :base_config, :head_config,
               :filter_config, :strip_config, :tail_config, :not_present_config,
-              :badmsg_config, :storage_path
+              :badmsg_config, :storage_path, :storage_config
 
   def create_driver(config)
     Fluent::Test::Driver::Input.new(Fluent::Plugin::SystemdInput).configure(config)
+  end
+
+  def read_pos
+    JSON.parse(File.read(storage_path))['journal']
+  end
+
+  def write_pos(pos)
+    File.write(storage_path, JSON.dump(journal: pos))
   end
 
   def test_configure_requires_tag
@@ -154,22 +162,9 @@ class SystemdInputTest < Test::Unit::TestCase
   end
 
   def test_storage_file_is_written
-    storage_config = config_element('ROOT', '', {
-                                      'tag' => 'test',
-                                      'path' => 'test/fixture',
-                                      '@id' => 'test-01'
-                                    }, [
-                                      config_element('storage', '',
-                                                     '@type'      => 'local',
-                                                     'persistent' => true,
-                                                     'path'       => @storage_path)
-                                    ])
-
     d = create_driver(storage_config)
     d.run(expect_emits: 1)
-    storage = JSON.parse(File.read(storage_path))
-    result = storage['journal']
-    assert_equal result, 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4'
+    assert_equal 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4', read_pos
   end
 
   def test_reading_from_head
@@ -212,9 +207,7 @@ class SystemdInputTest < Test::Unit::TestCase
   end
 
   def test_reading_from_a_pos
-    file = File.open(pos_path, 'w+')
-    file.print 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=13f;b=4737ffc504774b3ba67020bc947f1bc0;m=ffadd;t=4d905e49a6291;x=9a11dd9ffee96e9f'
-    file.close
+    write_pos 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=13f;b=4737ffc504774b3ba67020bc947f1bc0;m=ffadd;t=4d905e49a6291;x=9a11dd9ffee96e9f'
     d = create_driver(head_config)
     d.end_if do
       d.events.size >= 142
@@ -224,9 +217,7 @@ class SystemdInputTest < Test::Unit::TestCase
   end
 
   def test_reading_from_an_invalid_pos
-    file = File.open(pos_path, 'w+')
-    file.print 'thisisinvalid'
-    file.close
+    write_pos 'thisisinvalid'
 
     # It continues as if the pos file did not exist
     d = create_driver(head_config)
@@ -236,7 +227,7 @@ class SystemdInputTest < Test::Unit::TestCase
     d.run(timeout: 5)
     assert_equal 461, d.events.size
     assert_match(
-      "Could not seek to cursor thisisinvalid found in pos file: #{pos_path}, falling back to reading from head",
+      "Could not seek to cursor thisisinvalid found in position file: #{storage_path}, falling back to reading from head",
       d.logs.last
     )
   end
