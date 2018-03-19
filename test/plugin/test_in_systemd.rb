@@ -65,11 +65,6 @@ class SystemdInputTest < Test::Unit::TestCase
       read_from_head true
     )
 
-    # deprecated
-    @strip_config = base_config + %(
-      strip_underscores true
-    )
-
     @storage_path = File.join(Dir.mktmpdir('pos_dir'), 'storage.json')
 
     @storage_config = @base_config + %(
@@ -99,7 +94,7 @@ class SystemdInputTest < Test::Unit::TestCase
   end
 
   attr_reader :journal, :base_config, :head_config,
-              :filter_config, :strip_config, :tail_config, :not_present_config,
+              :filter_config, :tail_config, :not_present_config,
               :badmsg_config, :storage_path, :storage_config
 
   def create_driver(config)
@@ -144,18 +139,6 @@ class SystemdInputTest < Test::Unit::TestCase
       'test',
       1_364_519_243,
       expect
-    ]]
-    d.run(expect_emits: 1)
-    assert_equal(expected, d.events)
-  end
-
-  # deprecated config option for backwards compatibility
-  def test_reading_from_the_journal_tail_with_strip_underscores_legacy
-    d = create_driver(strip_config)
-    expected = [[
-      'test',
-      1_364_519_243,
-      EntryTestData::EXPECTED[:fields_strip_underscores]
     ]]
     d.run(expect_emits: 1)
     assert_equal(expected, d.events)
