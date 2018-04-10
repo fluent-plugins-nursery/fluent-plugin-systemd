@@ -22,5 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "test-unit", "~> 2.5"
 
   spec.add_runtime_dependency "fluentd", "~> 0.12"
-  spec.add_runtime_dependency "systemd-journal", "~> 1.2"
+  spec.add_runtime_dependency "systemd-journal", "~> 1.3"
 end
