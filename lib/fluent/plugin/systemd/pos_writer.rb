@@ -26,8 +26,8 @@ module Fluent
         write_pos
       end
 
-      def update(c)
-        @lock.synchronize { @cursor = c }
+      def update(cur)
+        @lock.synchronize { @cursor = cur }
       end
 
       private

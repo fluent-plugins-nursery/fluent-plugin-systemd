@@ -35,6 +35,7 @@ module Fluent
     private
 
     def init_journal
+      @journal.close if @journal
       @journal = Systemd::Journal.new(path: @path)
       # make sure initial call to wait doesn't return :invalidate
       # see https://github.com/ledbettj/systemd-journal/issues/70
@@ -70,7 +71,7 @@ module Fluent
       watch do |entry|
         begin
           router.emit(@tag, entry.realtime_timestamp.to_i, formatted(entry))
-        rescue => e
+        rescue Exception => e
           log.error("Exception emitting record: #{e}")
         end
       end
