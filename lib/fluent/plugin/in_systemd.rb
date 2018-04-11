@@ -70,7 +70,7 @@ module Fluent
       watch do |entry|
         begin
           router.emit(@tag, entry.realtime_timestamp.to_i, formatted(entry))
-        rescue => e
+        rescue => e # rubocop:disable Style/RescueStandardError
           log.error("Exception emitting record: #{e}")
         end
       end
