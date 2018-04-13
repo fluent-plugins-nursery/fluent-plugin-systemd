@@ -223,3 +223,4 @@ Many thanks to our fantastic contributors
 * [Jesus Rafael Carrillo](https://github.com/jescarri)
 * [John Thomas Wile II](https://github.com/jtwile2)
 * [Kazuhiro Suzuki](https://github.com/ksauzz)
+* [Joel Gerber](https://github.com/Jitsusama)
