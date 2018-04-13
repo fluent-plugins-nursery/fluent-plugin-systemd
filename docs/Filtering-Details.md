@@ -4,8 +4,8 @@
 
 This application takes an array of hashes passed to the `filters` parameter
 within a `systemd` typed source definition in your `fluent.conf` configuration
-file and then parses them into a format understood by `systemd`'s `journald`
-API. The basis behind what `journald`'s API expects can be found documented in
+file and then parses them into a format understood by `libsystemd`'s journal
+API. The basis behind what `libsystemd`'s API expects can be found documented in
 the `journalctl` [man
 page](https://www.freedesktop.org/software/systemd/man/journalctl.html).
 
@@ -13,7 +13,7 @@ page](https://www.freedesktop.org/software/systemd/man/journalctl.html).
 
 In order to utilize this plugin's filtering capabilities, you will need to
 understand how this plugin transforms the passed array of hashes into a format
-that is understood by `journald`.
+that is understood by `libsystemd`.
 
 The best way to describe this process is probably by example. The following
 sub-sections lists out various scenarios that you might wish to perform with
