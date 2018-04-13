@@ -64,8 +64,12 @@ Path to the systemd journal, defaults to `/var/log/journal`
 
 **`filters`**
 
-Array of filters, see [here](http://www.rubydoc.info/gems/systemd-journal/Systemd%2FJournal%2FFilterable%3Afilter) for further
-documentation, defaults to no filtering.
+Expects an array of hashes defining desired filters to apply to all log
+messages. When this property is not specified, this plugin will default to
+having no filters specified.
+
+See [filtering details](docs/Filtering-Details.md) for a more exhaustive
+description of this property and how to use it.
 
 **`pos_file`**
 
