@@ -72,7 +72,8 @@ messages. When this property is not specified, this plugin will default to
 passing all logs.
 
 See [matching details](docs/Matching-Details.md) for a more exhaustive
-description of this property and how to use it.
+description of this property and how to use it (replacing references to
+matches/matching with filters/filtering).
 
 **`matches`**
 
