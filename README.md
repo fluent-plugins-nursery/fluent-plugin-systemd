@@ -41,7 +41,7 @@ or
       @type systemd
       tag kube-proxy
       path /var/log/journal
-      filters [{ "_SYSTEMD_UNIT": "kube-proxy.service" }]
+      matches [{ "_SYSTEMD_UNIT": "kube-proxy.service" }]
       read_from_head true
       <storage>
         @type local
@@ -65,11 +65,15 @@ Path to the systemd journal, defaults to `/var/log/journal`
 
 **`filters`**
 
-Expects an array of hashes defining desired filters to apply to all log
-messages. When this property is not specified, this plugin will default to
-having no filters specified.
+_This parameter name is deprecated and should be renamed to `matches`_
 
-See [filtering details](docs/Filtering-Details.md) for a more exhaustive
+**`matches`**
+
+Expects an array of hashes defining desired matches to filter the log
+messages with. When this property is not specified, this plugin will default to
+reading all logs from the journal.
+
+See [matching details](docs/Matching-Details.md) for a more exhaustive
 description of this property and how to use it.
 
 **`pos_file`**
