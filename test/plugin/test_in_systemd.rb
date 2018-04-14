@@ -83,6 +83,10 @@ class SystemdInputTest < Test::Unit::TestCase
       filters [{ "_SYSTEMD_UNIT": "systemd-journald.service" }]
     )
 
+    @matches_config = @head_config + %(
+      matches [{ "_SYSTEMD_UNIT": "systemd-journald.service" }]
+    )
+
     @tail_config = @storage_config + %(
       read_from_head false
     )
@@ -94,7 +98,7 @@ class SystemdInputTest < Test::Unit::TestCase
   end
 
   attr_reader :journal, :base_config, :head_config,
-              :filter_config, :tail_config, :not_present_config,
+              :matches_config, :filter_config, :tail_config, :not_present_config,
               :badmsg_config, :storage_path, :storage_config
 
   def create_driver(config)
@@ -180,8 +184,18 @@ class SystemdInputTest < Test::Unit::TestCase
     d.run(expect_emits: 1)
   end
 
+  # deprecated and replaced with matches
   def test_reading_with_filters
     d = create_driver(filter_config)
+    d.end_if do
+      d.events.size >= 3
+    end
+    d.run(timeout: 5)
+    assert_equal 3, d.events.size
+  end
+
+  def test_reading_with_matches
+    d = create_driver(matches_config)
     d.end_if do
       d.events.size >= 3
     end

@@ -15,7 +15,8 @@ module Fluent
       DEFAULT_STORAGE_TYPE = 'local'
 
       config_param :path, :string, default: '/var/log/journal'
-      config_param :filters, :array, default: []
+      config_param :filters, :array, default: [], deprecated: 'filters has been renamed as matches'
+      config_param :matches, :array, default: nil
       config_param :read_from_head, :bool, default: false
       config_param :tag, :string
 
@@ -54,7 +55,7 @@ module Fluent
         # make sure initial call to wait doesn't return :invalidate
         # see https://github.com/ledbettj/systemd-journal/issues/70
         @journal.wait(0)
-        @journal.filter(*@filters)
+        @journal.filter(*(@matches || @filters))
         seek
         true
       rescue Systemd::JournalError => e
