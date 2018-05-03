@@ -59,12 +59,6 @@ class SystemdInputTest < Test::Unit::TestCase
       path test/fixture
     )
 
-    @badmsg_config = %(
-      tag test
-      path test/fixture/corrupt
-      read_from_head true
-    )
-
     @storage_path = File.join(Dir.mktmpdir('pos_dir'), 'storage.json')
 
     @storage_config = @base_config + %(
@@ -99,7 +93,7 @@ class SystemdInputTest < Test::Unit::TestCase
 
   attr_reader :journal, :base_config, :head_config,
               :matches_config, :filter_config, :tail_config, :not_present_config,
-              :badmsg_config, :storage_path, :storage_config
+              :storage_path, :storage_config
 
   def create_driver(config)
     Fluent::Test::Driver::Input.new(Fluent::Plugin::SystemdInput).configure(config)
@@ -245,12 +239,5 @@ class SystemdInputTest < Test::Unit::TestCase
     d.end_if { d.logs.size > 1 }
     d.run(timeout: 5)
     assert_match 'Systemd::JournalError: No such file or directory retrying in 1s', d.logs.last
-  end
-
-  def test_continue_on_bad_message
-    d = create_driver(badmsg_config)
-    d.run(expect_emits: 460)
-    assert_equal 460, d.events.size
-    assert_equal 0, d.error_events.size
   end
 end

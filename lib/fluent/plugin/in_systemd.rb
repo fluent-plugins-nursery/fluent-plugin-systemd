@@ -118,12 +118,7 @@ module Fluent
 
       def watch
         while @journal.move_next
-          begin
-            yield @journal.current_entry
-          rescue Systemd::JournalError => e
-            log.warn("Error Parsing Journal: #{e.class}: #{e.message}")
-            next
-          end
+          yield @journal.current_entry
           @pos_storage.put(:journal, @journal.cursor)
         end
       end
