@@ -116,11 +116,15 @@ module Fluent
         @mutator.run(entry)
       end
 
-      def watch
-        while @journal.move_next
-          yield @journal.current_entry
-          @pos_storage.put(:journal, @journal.cursor)
-        end
+      def watch(&block)
+        yield_current_entry(&block) while @journal.move_next
+      end
+
+      def yield_current_entry
+        yield @journal.current_entry
+        @pos_storage.put(:journal, @journal.cursor)
+      rescue Systemd::JournalError => e
+        log.warn("Error reading from Journal: #{e.class}: #{e.message}")
       end
     end
   end

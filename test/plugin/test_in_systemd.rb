@@ -89,11 +89,17 @@ class SystemdInputTest < Test::Unit::TestCase
       tag test
       path test/not_a_real_path
     )
+
+    @corrupt_entries_config = %(
+       tag test
+       path test/fixture/corrupt
+       read_from_head true
+    )
   end
 
   attr_reader :journal, :base_config, :head_config,
               :matches_config, :filter_config, :tail_config, :not_present_config,
-              :storage_path, :storage_config
+              :storage_path, :storage_config, :corrupt_entries_config
 
   def create_driver(config)
     Fluent::Test::Driver::Input.new(Fluent::Plugin::SystemdInput).configure(config)
@@ -239,5 +245,11 @@ class SystemdInputTest < Test::Unit::TestCase
     d.end_if { d.logs.size > 1 }
     d.run(timeout: 5)
     assert_match 'Systemd::JournalError: No such file or directory retrying in 1s', d.logs.last
+  end
+
+  def test_reading_from_a_journal_with_corrupted_entries
+    d = create_driver(corrupt_entries_config)
+    d.run(expect_emits: 460)
+    assert_equal 460, d.events.size
   end
 end
