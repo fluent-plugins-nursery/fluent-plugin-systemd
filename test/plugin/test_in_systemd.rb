@@ -1,5 +1,19 @@
 # frozen_string_literal: true
 
+#   Copyright 2015-2018 Edward Robinson
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 require_relative '../helper'
 require_relative './systemd/test_entry_mutator'
 require 'tempfile'
@@ -59,12 +73,6 @@ class SystemdInputTest < Test::Unit::TestCase
       path test/fixture
     )
 
-    @badmsg_config = %(
-      tag test
-      path test/fixture/corrupt
-      read_from_head true
-    )
-
     @storage_path = File.join(Dir.mktmpdir('pos_dir'), 'storage.json')
 
     @storage_config = @base_config + %(
@@ -95,11 +103,17 @@ class SystemdInputTest < Test::Unit::TestCase
       tag test
       path test/not_a_real_path
     )
+
+    @corrupt_entries_config = %(
+       tag test
+       path test/fixture/corrupt
+       read_from_head true
+    )
   end
 
   attr_reader :journal, :base_config, :head_config,
               :matches_config, :filter_config, :tail_config, :not_present_config,
-              :badmsg_config, :storage_path, :storage_config
+              :storage_path, :storage_config, :corrupt_entries_config
 
   def create_driver(config)
     Fluent::Test::Driver::Input.new(Fluent::Plugin::SystemdInput).configure(config)
@@ -247,10 +261,9 @@ class SystemdInputTest < Test::Unit::TestCase
     assert_match 'Systemd::JournalError: No such file or directory retrying in 1s', d.logs.last
   end
 
-  def test_continue_on_bad_message
-    d = create_driver(badmsg_config)
+  def test_reading_from_a_journal_with_corrupted_entries
+    d = create_driver(corrupt_entries_config)
     d.run(expect_emits: 460)
     assert_equal 460, d.events.size
-    assert_equal 0, d.error_events.size
   end
 end
