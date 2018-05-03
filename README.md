@@ -199,7 +199,7 @@ For systems with systemd installed you can run the tests against your installed 
 
 ## Licence
 
-[MIT](LICENCE)
+[Apache-2.0](LICENCE)
 
 ## Contributions
 
