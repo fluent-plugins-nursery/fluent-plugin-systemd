@@ -4,8 +4,8 @@
 
 ## Overview
 
-**systemd** input plugin reads logs from the systemd journal
-**systemd** filter plugin allows for basic manipulation of systemd journal entries
+* **systemd** input plugin to read logs from the systemd journal
+* **systemd** filter plugin for basic manipulation of systemd journal entries
 
 ## Support
 
@@ -53,7 +53,6 @@ If you are upgrading to version 1.0 from a previous version of this plugin take 
         path kube-proxy.pos
       </storage>
       <entry>
-        field_map {"MESSAGE": "log", "_PID": ["process", "pid"], "_CMDLINE": "process", "_COMM": "cmd"}
         fields_strip_underscores true
         fields_lowercase true
       </entry>
@@ -69,7 +68,7 @@ Path to the systemd journal, defaults to `/var/log/journal`
 
 **`filters`**
 
-_This parameter name is deprecated and should be renamed to `matches`_
+_This parameter name is depreciated and should be renamed to `matches`_
 
 **`matches`**
 
@@ -105,13 +104,17 @@ For an example of a full working setup including the plugin, [take a look at](ht
 
 ## Filter Plugin Configuration
 
-    <filter kube-proxy>
-      @type systemd_entry
-      field_map {"MESSAGE": "log", "_PID": ["process", "pid"], "_CMDLINE": "process", "_COMM": "cmd"}
-      field_map_strict false
-      fields_lowercase true
-      fields_strip_underscores true
-    </filter>
+```
+<filter kube-proxy>
+  @type systemd_entry
+  field_map {"MESSAGE": "log", "_PID": ["process", "pid"], "_CMDLINE": "process", "_COMM": "cmd"}
+  field_map_strict false
+  fields_lowercase true
+  fields_strip_underscores true
+</filter>
+```
+
+_Note that the following configurations can be embedded in a systemd source block, within an entry block, you only need to use a filter directly for more complicated workflows._
 
 **`field_map`**
 
@@ -136,7 +139,7 @@ If true, lowercase all non-mapped fields. Defaults to false.
 
 If true, strip leading underscores from all non-mapped fields. Defaults to false.
 
-### Example
+### Filter Example
 
 Given a systemd journal source entry:
 ```
@@ -165,10 +168,10 @@ The resulting entry using the above sample configuration:
 
 > ### When I look at fluentd logs, everything looks fine but no journal logs are read
 
-This is commonly caused when the user running fluentd does not have enough permisions
+This is commonly caused when the user running fluentd does not have the correct permissions
 to read the systemd journal.
 
-Acording to the [systemd documentation](https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html):
+According to the [systemd documentation](https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html):
 > Journal files are, by default, owned and readable by the "systemd-journal" system group but are not writable. Adding a user to this group thus enables her/him to read the journal files.
 
 
@@ -182,7 +185,7 @@ To run the tests with docker on several distros simply run `rake`
 
 For systems with systemd installed you can run the tests against your installed libsystemd with `rake test`
 
-## Licence
+## License
 
 [Apache-2.0](LICENCE)
 
