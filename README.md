@@ -4,7 +4,7 @@
 
 ## Overview
 
-**systemd** input plugin reads logs from the systemd journal  
+**systemd** input plugin reads logs from the systemd journal
 **systemd** filter plugin allows for basic manipulation of systemd journal entries
 
 ## Support
@@ -34,6 +34,10 @@ Simply use RubyGems:
 or
 
     td-agent-gem install fluent-plugin-systemd -v 0.3.1
+
+## Upgrading
+
+If you are upgrading to version 1.0 from a previous version of this plugin take a look at the [upgrade documentation](docs/upgrading.md). A number of deprecated config options were removed so you might need to update your configuration.
 
 ## Input Plugin Configuration
 
@@ -76,33 +80,14 @@ reading all logs from the journal.
 See [matching details](docs/Matching-Details.md) for a more exhaustive
 description of this property and how to use it.
 
-**`pos_file`**
-
-_This parameter is deprecated and will be removed in favour of storage in v1.0._
-
-
-Path to pos file, stores the journald cursor. File is created if does not exist.
-
 **`storage`**
 
 Configuration for a [storage plugin](http://docs.fluentd.org/v0.14/articles/storage-plugin-overview) used to store the journald cursor.
-
-_Upgrading from `pos_file`_
-
-If `pos_file` is specified in addition to a storage plugin with persistent set to true, the cursor will be
-copied from the `pos_file` on startup, and the old `pos_file` removed.
 
 **`read_from_head`**
 
 If true reads all available journal from head, otherwise starts reading from tail,
  ignored if pos file exists (and is valid). Defaults to false.
-
-**`strip_underscores`**
-
-_This parameter is deprecated and will be removed in favour of entry in v1.0._
-
-If true strips underscores from the beginning of systemd field names.
-May be useful if outputting to kibana, as underscore prefixed fields are unindexed there.
 
 **`entry`**
 
