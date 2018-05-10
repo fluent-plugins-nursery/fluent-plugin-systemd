@@ -21,19 +21,18 @@ Join the #plugin-systemd channel on the [Fluentd Slack](http://slack.fluentd.org
 | > 0.1.0 | >= 0.14.11, < 2 | 3 | >= 2.1 |
 | 0.0.x | ~> 0.12.0       | 2 | >= 1.9  |
 
-* The 0.x.x series is developed from this branch (master)
+* The 1.x.x series is developed from this branch (master)
 * The 0.0.x series (compatible with fluentd v0.12, and td-agent 2) is maintained on the [0.0.x branch](https://github.com/reevoo/fluent-plugin-systemd/tree/0.0.x)
-* The next version is currently under development on the [1.0.0 branch](https://github.com/reevoo/fluent-plugin-systemd/tree/1.0.0) it's progress is tracked [here](https://github.com/reevoo/fluent-plugin-systemd/issues/53)
 
 ## Installation
 
 Simply use RubyGems:
 
-    gem install fluent-plugin-systemd -v 0.3.1
+    gem install fluent-plugin-systemd -v 1.0.0
 
 or
 
-    td-agent-gem install fluent-plugin-systemd -v 0.3.1
+    td-agent-gem install fluent-plugin-systemd -v 1.0.0
 
 ## Upgrading
 
@@ -76,7 +75,7 @@ Expects an array of hashes defining desired matches to filter the log
 messages with. When this property is not specified, this plugin will default to
 reading all logs from the journal.
 
-See [matching details](docs/Matching-Details.md) for a more exhaustive
+See [matching details](docs/matching.md) for a more exhaustive
 description of this property and how to use it.
 
 **`storage`**
