@@ -22,7 +22,7 @@ Join the #plugin-systemd channel on the [Fluentd Slack](http://slack.fluentd.org
 | 0.0.x | ~> 0.12.0       | 2 | >= 1.9  |
 
 * The 0.x.x series is developed from this branch (master)
-* The 0.0.x series (compatible with fluentd v0.12, and td-agent 2) is developed on the [0.0.x branch](https://github.com/reevoo/fluent-plugin-systemd/tree/0.0.x)
+* The 0.0.x series (compatible with fluentd v0.12, and td-agent 2) is maintained on the [0.0.x branch](https://github.com/reevoo/fluent-plugin-systemd/tree/0.0.x)
 * The next version is currently under development on the [1.0.0 branch](https://github.com/reevoo/fluent-plugin-systemd/tree/1.0.0) it's progress is tracked [here](https://github.com/reevoo/fluent-plugin-systemd/issues/53)
 
 ## Installation
@@ -86,11 +86,11 @@ Configuration for a [storage plugin](http://docs.fluentd.org/v0.14/articles/stor
 **`read_from_head`**
 
 If true reads all available journal from head, otherwise starts reading from tail,
- ignored if pos file exists (and is valid). Defaults to false.
+ ignored if cursor exists in storage (and is valid). Defaults to false.
 
 **`entry`**
 
-Optional configuration for an embeded systemd entry filter. See the  [Filter Plugin Configuration](#filter-plugin-configuration) for config reference.
+Optional configuration for an embedded systemd entry filter. See the  [Filter Plugin Configuration](#filter-plugin-configuration) for config reference.
 
 **`tag`**
 
@@ -166,13 +166,23 @@ The resulting entry using the above sample configuration:
 
 ## Common Issues
 
-> ### When I look at fluentd logs, everything looks fine but no journal logs are read
+> ### When I look at fluentd logs, everything looks fine but no journal logs are read ?
 
 This is commonly caused when the user running fluentd does not have the correct permissions
 to read the systemd journal.
 
 According to the [systemd documentation](https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html):
 > Journal files are, by default, owned and readable by the "systemd-journal" system group but are not writable. Adding a user to this group thus enables her/him to read the journal files.
+
+> ### How can I deal with multi-line logs ?
+
+Ideally you want to ensure that your logs are saved to the systemd journal as a single entry regardless of how many lines they span.
+
+It is possible for applications to naively support this (but only if they have tight integration with systemd it seems) see: https://github.com/systemd/systemd/issues/5188.
+
+Typically you would not be able to this, so another way is to configure your logger to replace newline characters with something else. See this blog post for an example configuring a Java logging library to do this https://fabianlee.org/2018/03/09/java-collapsing-multiline-stack-traces-into-a-single-log-event-using-spring-backed-by-logback-or-log4j2/
+
+Another strategy would be to use a plugin like [fluent-plugin-concat](https://github.com/fluent-plugins-nursery/fluent-plugin-concat) to combine multi line logs into a single event, this is more tricky though because you need to be able to identify the first and last lines of a multi line message with a regex.
 
 
 ## Dependencies
