@@ -1,14 +1,27 @@
 # frozen_string_literal: true
 
+#   Copyright 2015-2018 Edward Robinson
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 require 'systemd/journal'
 require 'fluent/plugin/input'
-require 'fluent/plugin/systemd/pos_writer'
 require 'fluent/plugin/systemd/entry_mutator'
 
 module Fluent
   module Plugin
     # Fluentd plugin for reading from the systemd journal
-    class SystemdInput < Input # rubocop:disable Metrics/ClassLength
+    class SystemdInput < Input
       Fluent::Plugin.register_input('systemd', self)
 
       helpers :timer, :storage
@@ -16,11 +29,9 @@ module Fluent
       DEFAULT_STORAGE_TYPE = 'local'
 
       config_param :path, :string, default: '/var/log/journal'
-      config_param :filters, :array, default: []
-      config_param :pos_file, :string, default: nil, deprecated: "Use <storage> section with `persistent: true' instead"
+      config_param :filters, :array, default: [], deprecated: 'filters has been renamed as matches'
+      config_param :matches, :array, default: nil
       config_param :read_from_head, :bool, default: false
-      config_param :strip_underscores, :bool, default: false, deprecated: 'Use <entry> section or `systemd_entry` ' \
-                                                                          'filter plugin instead'
       config_param :tag, :string
 
       config_section :storage do
@@ -39,23 +50,14 @@ module Fluent
       def configure(conf)
         super
         @journal = nil
-        @pos_storage = PosWriter.new(@pos_file, storage_create(usage: 'positions'))
-        # legacy strip_underscores backwards compatibility (legacy takes
-        # precedence and is mutually exclusive with the entry block)
-        mut_opts = @strip_underscores ? { fields_strip_underscores: true } : @entry_opts.to_h
-        @mutator = SystemdEntryMutator.new(**mut_opts)
+        @pos_storage = storage_create(usage: 'positions')
+        @mutator = SystemdEntryMutator.new(**@entry_opts.to_h)
         @mutator.warnings.each { |warning| log.warn(warning) }
       end
 
       def start
         super
-        @pos_storage.start
         timer_execute(:in_systemd_emit_worker, 1, &method(:run))
-      end
-
-      def shutdown
-        @pos_storage.shutdown
-        super
       end
 
       private
@@ -67,7 +69,7 @@ module Fluent
         # make sure initial call to wait doesn't return :invalidate
         # see https://github.com/ledbettj/systemd-journal/issues/70
         @journal.wait(0)
-        @journal.filter(*@filters)
+        @journal.filter(*(@matches || @filters))
         seek
         true
       rescue Systemd::JournalError => e
@@ -80,7 +82,7 @@ module Fluent
         seek_to(cursor || read_from)
       rescue Systemd::JournalError
         log.warn(
-          "Could not seek to cursor #{cursor} found in pos file: #{@pos_storage.path}, " \
+          "Could not seek to cursor #{cursor} found in position file: #{@pos_storage.path}, " \
           "falling back to reading from #{read_from}"
         )
         seek_to(read_from)
@@ -128,16 +130,15 @@ module Fluent
         @mutator.run(entry)
       end
 
-      def watch
-        while @journal.move_next
-          begin
-            yield @journal.current_entry
-          rescue Systemd::JournalError => e
-            log.warn("Error Parsing Journal: #{e.class}: #{e.message}")
-            next
-          end
-          @pos_storage.put(:journal, @journal.cursor)
-        end
+      def watch(&block)
+        yield_current_entry(&block) while @journal.move_next
+      end
+
+      def yield_current_entry
+        yield @journal.current_entry
+        @pos_storage.put(:journal, @journal.cursor)
+      rescue Systemd::JournalError => e
+        log.warn("Error reading from Journal: #{e.class}: #{e.message}")
       end
     end
   end

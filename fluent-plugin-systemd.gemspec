@@ -6,14 +6,14 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = 'fluent-plugin-systemd'
-  spec.version       = '0.3.1'
+  spec.version       = '1.0.0'
   spec.authors       = ['Ed Robinson']
   spec.email         = ['edward-robinson@cookpad.com']
 
   spec.summary       = 'Input plugin to read from systemd journal.'
   spec.description   = 'This is a fluentd input plugin. It reads logs from the systemd journal.'
   spec.homepage      = 'https://github.com/reevoo/fluent-plugin-systemd'
-  spec.license       = 'MIT'
+  spec.license       = 'Apache-2.0'
 
   spec.files         = Dir['lib/**/**.rb', 'README.md', 'LICENCE']
   spec.require_paths = ['lib']

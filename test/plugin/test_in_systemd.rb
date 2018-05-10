@@ -1,5 +1,19 @@
 # frozen_string_literal: true
 
+#   Copyright 2015-2018 Edward Robinson
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 require_relative '../helper'
 require_relative './systemd/test_entry_mutator'
 require 'tempfile'
@@ -59,28 +73,17 @@ class SystemdInputTest < Test::Unit::TestCase
       path test/fixture
     )
 
-    @badmsg_config = %(
-      tag test
-      path test/fixture/corrupt
-      read_from_head true
+    @storage_path = File.join(Dir.mktmpdir('pos_dir'), 'storage.json')
+
+    @storage_config = @base_config + %(
+      <storage>
+        @type local
+        persistent true
+        path #{storage_path}
+      </storage>
     )
 
-    # deprecated
-    @strip_config = base_config + %(
-      strip_underscores true
-    )
-
-    pos_dir = Dir.mktmpdir('posdir')
-
-    @pos_path = "#{pos_dir}/foo.pos"
-
-    @pos_config = base_config + %(
-      pos_file #{@pos_path}
-    )
-
-    @storage_path = File.join(pos_dir.to_s, 'storage.json')
-
-    @head_config = @pos_config + %(
+    @head_config = @storage_config + %(
       read_from_head true
     )
 
@@ -88,7 +91,11 @@ class SystemdInputTest < Test::Unit::TestCase
       filters [{ "_SYSTEMD_UNIT": "systemd-journald.service" }]
     )
 
-    @tail_config = @pos_config + %(
+    @matches_config = @head_config + %(
+      matches [{ "_SYSTEMD_UNIT": "systemd-journald.service" }]
+    )
+
+    @tail_config = @storage_config + %(
       read_from_head false
     )
 
@@ -96,14 +103,28 @@ class SystemdInputTest < Test::Unit::TestCase
       tag test
       path test/not_a_real_path
     )
+
+    @corrupt_entries_config = %(
+       tag test
+       path test/fixture/corrupt
+       read_from_head true
+    )
   end
 
-  attr_reader :journal, :base_config, :pos_path, :pos_config, :head_config,
-              :filter_config, :strip_config, :tail_config, :not_present_config,
-              :badmsg_config, :storage_path
+  attr_reader :journal, :base_config, :head_config,
+              :matches_config, :filter_config, :tail_config, :not_present_config,
+              :storage_path, :storage_config, :corrupt_entries_config
 
   def create_driver(config)
     Fluent::Test::Driver::Input.new(Fluent::Plugin::SystemdInput).configure(config)
+  end
+
+  def read_pos
+    JSON.parse(File.read(storage_path))['journal']
+  end
+
+  def write_pos(pos)
+    File.write(storage_path, JSON.dump(journal: pos))
   end
 
   def test_configure_requires_tag
@@ -141,35 +162,10 @@ class SystemdInputTest < Test::Unit::TestCase
     assert_equal(expected, d.events)
   end
 
-  # deprecated config option for backwards compatibility
-  def test_reading_from_the_journal_tail_with_strip_underscores_legacy
-    d = create_driver(strip_config)
-    expected = [[
-      'test',
-      1_364_519_243,
-      EntryTestData::EXPECTED[:fields_strip_underscores]
-    ]]
-    d.run(expect_emits: 1)
-    assert_equal(expected, d.events)
-  end
-
   def test_storage_file_is_written
-    storage_config = config_element('ROOT', '', {
-                                      'tag' => 'test',
-                                      'path' => 'test/fixture',
-                                      '@id' => 'test-01'
-                                    }, [
-                                      config_element('storage', '',
-                                                     '@type'      => 'local',
-                                                     'persistent' => true,
-                                                     'path'       => @storage_path)
-                                    ])
-
     d = create_driver(storage_config)
     d.run(expect_emits: 1)
-    storage = JSON.parse(File.read(storage_path))
-    result = storage['journal']
-    assert_equal result, 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4'
+    assert_equal 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=1cd;b=4737ffc504774b3ba67020bc947f1bc0;m=42f2dd;t=4d905e4cd5a92;x=25b3f86ff2774ac4', read_pos
   end
 
   def test_reading_from_head
@@ -202,6 +198,7 @@ class SystemdInputTest < Test::Unit::TestCase
     d.run(expect_emits: 1)
   end
 
+  # deprecated and replaced with matches
   def test_reading_with_filters
     d = create_driver(filter_config)
     d.end_if do
@@ -211,10 +208,17 @@ class SystemdInputTest < Test::Unit::TestCase
     assert_equal 3, d.events.size
   end
 
+  def test_reading_with_matches
+    d = create_driver(matches_config)
+    d.end_if do
+      d.events.size >= 3
+    end
+    d.run(timeout: 5)
+    assert_equal 3, d.events.size
+  end
+
   def test_reading_from_a_pos
-    file = File.open(pos_path, 'w+')
-    file.print 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=13f;b=4737ffc504774b3ba67020bc947f1bc0;m=ffadd;t=4d905e49a6291;x=9a11dd9ffee96e9f'
-    file.close
+    write_pos 's=add4782f78ca4b6e84aa88d34e5b4a9d;i=13f;b=4737ffc504774b3ba67020bc947f1bc0;m=ffadd;t=4d905e49a6291;x=9a11dd9ffee96e9f'
     d = create_driver(head_config)
     d.end_if do
       d.events.size >= 142
@@ -224,9 +228,7 @@ class SystemdInputTest < Test::Unit::TestCase
   end
 
   def test_reading_from_an_invalid_pos
-    file = File.open(pos_path, 'w+')
-    file.print 'thisisinvalid'
-    file.close
+    write_pos 'thisisinvalid'
 
     # It continues as if the pos file did not exist
     d = create_driver(head_config)
@@ -236,7 +238,7 @@ class SystemdInputTest < Test::Unit::TestCase
     d.run(timeout: 5)
     assert_equal 461, d.events.size
     assert_match(
-      "Could not seek to cursor thisisinvalid found in pos file: #{pos_path}, falling back to reading from head",
+      "Could not seek to cursor thisisinvalid found in position file: #{storage_path}, falling back to reading from head",
       d.logs.last
     )
   end
@@ -259,10 +261,9 @@ class SystemdInputTest < Test::Unit::TestCase
     assert_match 'Systemd::JournalError: No such file or directory retrying in 1s', d.logs.last
   end
 
-  def test_continue_on_bad_message
-    d = create_driver(badmsg_config)
+  def test_reading_from_a_journal_with_corrupted_entries
+    d = create_driver(corrupt_entries_config)
     d.run(expect_emits: 460)
     assert_equal 460, d.events.size
-    assert_equal 0, d.error_events.size
   end
 end

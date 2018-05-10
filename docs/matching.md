@@ -1,35 +1,38 @@
-# Filtering Details
+# Matching Details
 
 ## Overview
 
-This application takes an array of hashes passed to the `filters` parameter
+This application takes an array of hashes passed to the `matches` parameter
 within a `systemd` typed source definition in your `fluent.conf` configuration
 file and then parses them into a format understood by `libsystemd`'s journal
 API. The basis behind what `libsystemd`'s API expects can be found documented in
 the `journalctl` [man
 page](https://www.freedesktop.org/software/systemd/man/journalctl.html).
 
+The result of this is that only logs which match the defined set of matching
+rules will be further processed.
+
 ## Usage Information
 
-In order to utilize this plugin's filtering capabilities, you will need to
+In order to utilize this plugin's matching capabilities, you will need to
 understand how this plugin transforms the passed array of hashes into a format
 that is understood by `libsystemd`.
 
 The best way to describe this process is probably by example. The following
 sub-sections lists out various scenarios that you might wish to perform with
-this plugin's filtering mechanism and describes both how to configure them,
+this plugin's matching mechanism and describes both how to configure them,
 while also mapping them to examples from the `journalctl` [man
 page](https://www.freedesktop.org/software/systemd/man/journalctl.html).
 
 ### No Filters
 
-You can leave the `filters` property out altogether, or include a `filters`
-property with an empty array (as shown below) to specify that no filtering
+You can leave the `matches` property out altogether, or include a `matches`
+property with an empty array (as shown below) to specify that no matching
 should occur.
 
-    filters []
+    matches []
 
-Which matches this part of the `journalctl` man page:
+Which coincides with this part of the `journalctl` man page:
 
 > Without arguments, all collected logs are shown unfiltered:
 >
@@ -37,13 +40,13 @@ Which matches this part of the `journalctl` man page:
 
 ### Single Filter
 
-You can pass a single hash map to the `filters` array with a single key/value
-pair specified to filter out all log entries that do not match the given
-field/value combination.
+You can pass a single hash map to the `matches` array with a single key/value
+pair specified to only process log entries that match the given field/value
+combination.
 
 For example:
 
-    filters [{"_SYSTEMD_UNIT": "avahi-daemon.service"}]
+    matches [{"_SYSTEMD_UNIT": "avahi-daemon.service"}]
 
 Which coincides with this part of the the `journalctl` man page:
 
@@ -54,9 +57,9 @@ Which coincides with this part of the the `journalctl` man page:
 
 ### Multi-Field Filters
 
-You can pass a single hash map to the `filters` array with multiple key/value
-pairs to filter out all log entries that do not match the combination of all of
-the specified key/value combinations.
+You can pass a single hash map to the `matches` array with multiple key/value
+pairs to only process log entries that match the combination of all of the
+specified key/value combinations.
 
 The passed key/value pairs are treated as a logical `AND`, such that all of the
 pairs must be true in order to allow further processing of the current log
@@ -64,7 +67,7 @@ entry.
 
 For Example:
 
-    filters [{"_SYSTEMD_UNIT": "avahi-daemon.service", "_PID": 28097}]
+    matches [{"_SYSTEMD_UNIT": "avahi-daemon.service", "_PID": 28097}]
 
 Which coincides with this part of the the `journalctl` man page:
 
@@ -74,15 +77,15 @@ Which coincides with this part of the the `journalctl` man page:
 > `journalctl _SYSTEMD_UNIT=avahi-daemon.service _PID=28097`
 
 You can also perform a logical `OR` by splitting key/value pairs across multiple
-hashes passed to the `filters` array like so:
+hashes passed to the `matches` array like so:
 
-    filters [{"_SYSTEMD_UNIT": "avahi-daemon.service"}, {"_PID": 28097}]
+    matches [{"_SYSTEMD_UNIT": "avahi-daemon.service"}, {"_PID": 28097}]
 
 You can combine both `AND` and `OR` combinations together; using a single hash
 map to define conditions that `AND` together and using multiple hash maps to
 define conditions that `OR` together like so:
 
-    filters [{"_SYSTEMD_UNIT": "avahi-daemon.service", "_PID": 28097}, {"_SYSTEMD_UNIT": "dbus.service"}]
+    matches [{"_SYSTEMD_UNIT": "avahi-daemon.service", "_PID": 28097}, {"_SYSTEMD_UNIT": "dbus.service"}]
 
 This can be expressed in psuedo-code like so:
 
@@ -105,7 +108,7 @@ Fields with arrays as values are treated as a logical `OR` statement.
 
 For example:
 
-    filters [{"_SYSTEMD_UNIT": ["avahi-daemon.service", "dbus.service"]}]
+    matches [{"_SYSTEMD_UNIT": ["avahi-daemon.service", "dbus.service"]}]
 
 Which coincides with this part of the `journalctl` man page:
 
@@ -119,7 +122,7 @@ particularly helpful when you want to create aggregate logic
 
 For example:
 
-    filters [{"_SYSTEMD_UNIT": "avahi-daemon.service", "_PID": 28097}, {"_SYSTEMD_UNIT": "dbus.service"}]
+    matches [{"_SYSTEMD_UNIT": "avahi-daemon.service", "_PID": 28097}, {"_SYSTEMD_UNIT": "dbus.service"}]
 
 This can be expressed in psuedo-code like so:
 
