@@ -186,6 +186,16 @@ Another strategy would be to use a plugin like [fluent-plugin-concat](https://gi
 * You can use an [offical fluentd docker](https://github.com/fluent/fluentd-docker-image) image as a base, (choose the debian based version, as alpine linux doesn't support systemd).
 * Bind mount `/var/log/journal` into your container.
 
+> ### I am seeing lots of logs being generated very rapidly!
+
+This commonly occurs when a loop is created when fluentd is logging to STDOUT, and the collected logs are then written to the systemd journal. This could happen if you run fluentd as a systemd serivce, or as a docker container with the systemd log driver.
+
+Workarounds include:
+
+* Use another fluentd output
+* Don't read every message from the journal, set some `matches` so you only read the messages you are interested in.
+* Disable the systemd log driver when you launch your fluentd docker container, e.g. by passing `--log-driver json-file`
+
 ### Example
 
 For an example of a full working setup including the plugin, take a look at [the fluentd kubernetes daemonset](https://github.com/fluent/fluentd-kubernetes-daemonset)
