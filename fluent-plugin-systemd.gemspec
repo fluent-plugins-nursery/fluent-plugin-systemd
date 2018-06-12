@@ -3,7 +3,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "fluent-plugin-systemd"
-  spec.version       = "0.0.10"
+  spec.version       = "0.0.11"
   spec.authors       = ["Ed Robinson"]
   spec.email         = ["ed@reevoo.com"]
 
@@ -22,5 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "test-unit", "~> 2.5"
 
   spec.add_runtime_dependency "fluentd", "~> 0.12"
-  spec.add_runtime_dependency "systemd-journal", "~> 1.3"
+  spec.add_runtime_dependency "systemd-journal", "~> 1.3.2"
 end

@@ -37,9 +37,6 @@ module Fluent
     def init_journal
       @journal.close if @journal
       @journal = Systemd::Journal.new(path: @path)
-      # make sure initial call to wait doesn't return :invalidate
-      # see https://github.com/ledbettj/systemd-journal/issues/70
-      @journal.wait(0)
       @journal.filter(*@filters)
       seek
     end
