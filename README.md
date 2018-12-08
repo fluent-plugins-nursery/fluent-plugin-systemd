@@ -42,24 +42,28 @@ If you are upgrading to version 1.0 from a previous version of this plugin take 
 
     <source>
       @type systemd
-      tag kube-proxy
+      tag kubelet
       path /var/log/journal
-      matches [{ "_SYSTEMD_UNIT": "kube-proxy.service" }]
+      matches [{ "_SYSTEMD_UNIT": "kubelet.service" }]
       read_from_head true
-      <storage>
+
+      <storage kubelet-pos>
         @type local
-        persistent false
-        path kube-proxy.pos
       </storage>
+
       <entry>
         fields_strip_underscores true
         fields_lowercase true
       </entry>
     </source>
 
-    <match kube-proxy>
+    <match kubelet>
       @type stdout
     </match>
+
+    <system>
+      root_dir /var/log/fluentd
+    </system>
 
 **`path`**
 
