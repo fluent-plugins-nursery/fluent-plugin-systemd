@@ -47,8 +47,9 @@ If you are upgrading to version 1.0 from a previous version of this plugin take 
       matches [{ "_SYSTEMD_UNIT": "kubelet.service" }]
       read_from_head true
 
-      <storage kubelet-pos>
+      <storage>
         @type local
+        path /var/log/fluentd-journald-kubelet-cursor.json
       </storage>
 
       <entry>
