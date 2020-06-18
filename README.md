@@ -209,10 +209,10 @@ For an example of a full working setup including the plugin, take a look at [the
 
 This plugin depends on libsystemd
 
-On Debian or Ubuntu you might need to install the libsystemd0 package:
+On Debian or Ubuntu you might need to install the libsystemd0 and build-essential packages:
 
 ```
-apt-get install libsystemd0
+apt-get install libsystemd0 build-essential
 ```
 
 On CentOS or RHEL you might need to install the systemd package:
