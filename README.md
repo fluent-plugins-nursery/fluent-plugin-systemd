@@ -85,7 +85,7 @@ description of this property and how to use it.
 
 **`storage`**
 
-Configuration for a [storage plugin](http://docs.fluentd.org/v0.14/articles/storage-plugin-overview) used to store the journald cursor.
+Configuration for a [storage plugin](https://docs.fluentd.org/storage) used to store the journald cursor.
 
 **`read_from_head`**
 
