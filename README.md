@@ -28,11 +28,11 @@ Join the #plugin-systemd channel on the [Fluentd Slack](http://slack.fluentd.org
 
 Simply use RubyGems:
 
-    gem install fluent-plugin-systemd -v 1.0.1
+    gem install fluent-plugin-systemd -v 1.0.3
 
 or
 
-    td-agent-gem install fluent-plugin-systemd -v 1.0.1
+    td-agent-gem install fluent-plugin-systemd -v 1.0.3
 
 ## Upgrading
 
