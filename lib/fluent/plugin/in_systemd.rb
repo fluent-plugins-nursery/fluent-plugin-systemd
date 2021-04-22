@@ -132,6 +132,8 @@ module Fluent
 
       def watch(&block)
         yield_current_entry(&block) while @journal.move_next
+      rescue Systemd::JournalError => e
+        log.warn("Error moving to next Journal entry: #{e.class}: #{e.message}")
       end
 
       def yield_current_entry
