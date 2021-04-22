@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:focal
 
 RUN apt-get update -q && apt-get install -qy --no-install-recommends \
         build-essential \

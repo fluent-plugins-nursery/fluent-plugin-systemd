@@ -20,9 +20,9 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler', '> 1.10'
   spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'test-unit', '~> 2.5'
-  spec.add_development_dependency 'rubocop', '~> 0.53.0'
+  spec.add_development_dependency 'test-unit', '~> 3.4'
+  spec.add_development_dependency 'rubocop', '1.13.0'
 
   spec.add_runtime_dependency 'fluentd', ['>= 0.14.11', '< 2']
-  spec.add_runtime_dependency 'systemd-journal', '~> 1.3.2'
+  spec.add_runtime_dependency 'systemd-journal', '~> 1.4.2'
 end
