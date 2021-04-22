@@ -1,8 +1,10 @@
 AllCops:
   Exclude:
     - '*.gemspec'
+  SuggestExtensions: false
+  NewCops: enable
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
   Exclude:
     - 'test/**/*'
@@ -13,5 +15,8 @@ Metrics/AbcSize:
   Exclude:
     - 'test/**/*'
 Metrics/MethodLength:
+  Exclude:
+    - 'test/**/*'
+Naming/VariableNumber:
   Exclude:
     - 'test/**/*'

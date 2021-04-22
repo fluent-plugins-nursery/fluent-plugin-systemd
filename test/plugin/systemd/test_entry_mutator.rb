@@ -32,9 +32,9 @@ class EntryTestData
 
   # field map used for tests
   FIELD_MAP = {
-    '_PID'     => %w[msg _PID],
-    'MESSAGE'  => 'msg',
-    '_COMM'    => '_EXE',
+    '_PID' => %w[msg _PID],
+    'MESSAGE' => 'msg',
+    '_COMM' => '_EXE',
     '_CMDLINE' => 'command'
   }.freeze
 

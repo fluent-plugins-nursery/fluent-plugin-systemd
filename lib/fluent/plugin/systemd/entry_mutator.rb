@@ -67,6 +67,7 @@ module Fluent
       # Expose config state as read-only instance properties of the mutator.
       def method_missing(sym, *args)
         return @opts[sym] if @opts.members.include?(sym)
+
         super
       end
 
@@ -80,6 +81,7 @@ module Fluent
       def run(entry)
         return entry.to_h if @no_transform
         return map_fields(entry) if @opts.field_map_strict
+
         format_fields(entry, map_fields(entry))
       end
 
@@ -90,6 +92,7 @@ module Fluent
         @map.each_with_object({}) do |(cstm, sysds), mapped|
           vals = sysds.collect { |fld| entry[fld] }.compact
           next if vals.empty? # systemd field does not exist in source entry
+
           mapped[cstm] = join_if_needed(vals)
         end
       end
@@ -103,6 +106,7 @@ module Fluent
         entry.each_with_object(mapped || {}) do |(fld, val), formatted_entry|
           # don't mess with explicitly mapped fields
           next if @map_src_fields.include?(fld)
+
           fld = format_field_name(fld)
           # account for mapping (appending) to an existing systemd field
           formatted_entry[fld] = join_if_needed([val, mapped[fld]])
@@ -111,6 +115,7 @@ module Fluent
 
       def warnings
         return [] unless field_map_strict && field_map.empty?
+
         '`field_map_strict` set to true with empty `field_map`, expect no fields'
       end
 
@@ -119,6 +124,7 @@ module Fluent
       def join_if_needed(values)
         values.compact!
         return values.first if values.length == 1
+
         values.join(' ')
       end
 
@@ -146,7 +152,7 @@ module Fluent
         end
       end
 
-      def validate_all_strings(arr, message, allow_nesting = false)
+      def validate_all_strings(arr, message, allow_nesting = false) # rubocop:disable Style/OptionalBooleanParameter
         valid = arr.all? do |value|
           value.is_a?(String) || allow_nesting && value.is_a?(Array) && value.all? { |key| key.is_a?(String) }
         end

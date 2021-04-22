@@ -92,6 +92,7 @@ module Fluent
       def seek_to(pos)
         @journal.seek(pos)
         return if pos == :head
+
         if pos == :tail
           @journal.move(-2)
         else
@@ -105,6 +106,7 @@ module Fluent
 
       def run
         return unless @journal || init_journal
+
         init_journal if @journal.wait(0) == :invalidate
         watch do |entry|
           emit(entry)
@@ -116,6 +118,7 @@ module Fluent
       rescue Fluent::Plugin::Buffer::BufferOverflowError => e
         retries ||= 0
         raise e if retries > 10
+
         retries += 1
         sleep 1.5**retries + rand(0..3)
         retry
