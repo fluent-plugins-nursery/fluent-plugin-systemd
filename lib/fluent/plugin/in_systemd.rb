@@ -57,7 +57,13 @@ module Fluent
 
       def start
         super
+        @running = true
         timer_execute(:in_systemd_emit_worker, 1, &method(:run))
+      end
+
+      def shutdown
+        @running = false
+        super
       end
 
       private
@@ -131,7 +137,7 @@ module Fluent
       end
 
       def watch(&block)
-        yield_current_entry(&block) while @journal.move_next
+        yield_current_entry(&block) while @running && @journal.move_next
       rescue Systemd::JournalError => e
         log.warn("Error moving to next Journal entry: #{e.class}: #{e.message}")
       end
