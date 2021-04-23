@@ -253,14 +253,16 @@ We have adopted the [Contributor Covenant](CODE_OF_CONDUCT.md) and thus expect a
 
 Many thanks to our fantastic contributors
 
-* [Hiroshi Hatake](https://github.com/cosmo0920)
 * [Erik Maciejewski](https://github.com/emacski)
-* [Masahiro Nakagawa](https://github.com/repeatedly)
-* [Richard Megginson](https://github.com/richm)
-* [Mike Kaplinskiy](https://github.com/mikekap)
-* [neko-neko](https://github.com/neko-neko)
-* [Sadayuki Furuhashi](https://github.com/frsyuki)
+* [Ernie Hershey](https://github.com/ehershey)
+* [Hiroshi Hatake](https://github.com/cosmo0920)
 * [Jesus Rafael Carrillo](https://github.com/jescarri)
+* [Joel Gerber](https://github.com/Jitsusama)
 * [John Thomas Wile II](https://github.com/jtwile2)
 * [Kazuhiro Suzuki](https://github.com/ksauzz)
-* [Joel Gerber](https://github.com/Jitsusama)
+* [Marius Grigoriu](https://github.com/mariusgrigoriu)
+* [Masahiro Nakagawa](https://github.com/repeatedly)
+* [Mike Kaplinskiy](https://github.com/mikekap)
+* [Richard Megginson](https://github.com/richm)
+* [Sadayuki Furuhashi](https://github.com/frsyuki)
+* [Seiichi Nishikata](https://github.com/neko-neko)
