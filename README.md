@@ -1,6 +1,6 @@
 # systemd plugin for [Fluentd](http://github.com/fluent/fluentd)
 
-[![Build Status](https://travis-ci.org/reevoo/fluent-plugin-systemd.svg?branch=master)](https://travis-ci.org/reevoo/fluent-plugin-systemd) [![Code Climate GPA](https://codeclimate.com/github/reevoo/fluent-plugin-systemd/badges/gpa.svg)](https://codeclimate.com/github/reevoo/fluent-plugin-systemd) [![Gem Version](https://badge.fury.io/rb/fluent-plugin-systemd.svg)](https://rubygems.org/gems/fluent-plugin-systemd)
+[![Build Status](https://github.com/fluent-plugin-systemd/fluent-plugin-systemd/actions/workflows/ci.yml/badge.svg)](https://github.com/fluent-plugin-systemd/fluent-plugin-systemd/actions/workflows/ci.yml) [![Maintainability](https://api.codeclimate.com/v1/badges/5c773a4c1c6a6964fa4b/maintainability)](https://codeclimate.com/github/fluent-plugin-systemd/fluent-plugin-systemd/maintainability) [![Gem Version](https://badge.fury.io/rb/fluent-plugin-systemd.svg)](https://rubygems.org/gems/fluent-plugin-systemd)
 
 ## Overview
 
