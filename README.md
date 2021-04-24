@@ -9,10 +9,7 @@
 
 ## Support
 
-[![Fluentd Slack](http://slack.fluentd.org/badge.svg)](http://slack.fluentd.org/)
-
 Join the #plugin-systemd channel on the [Fluentd Slack](http://slack.fluentd.org/)
-
 
 ## Requirements
 
