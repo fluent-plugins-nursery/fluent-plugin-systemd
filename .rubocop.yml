@@ -1,6 +1,8 @@
 AllCops:
   Exclude:
     - '*.gemspec'
+    - 'vendor/**/*'
+    - 'vendor/**/.*'
   SuggestExtensions: false
   NewCops: enable
 
