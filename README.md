@@ -263,3 +263,4 @@ Many thanks to our fantastic contributors
 * [Richard Megginson](https://github.com/richm)
 * [Sadayuki Furuhashi](https://github.com/frsyuki)
 * [Seiichi Nishikata](https://github.com/neko-neko)
+* [Kentaro Hayashi](https://github.com/kenhys)
