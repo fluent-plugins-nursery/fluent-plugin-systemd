@@ -6,7 +6,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = 'fluent-plugin-systemd'
-  spec.version       = '1.0.4'
+  spec.version       = '1.0.5'
   spec.authors       = ['Ed Robinson']
   spec.email         = ['edward-robinson@cookpad.com']
 
