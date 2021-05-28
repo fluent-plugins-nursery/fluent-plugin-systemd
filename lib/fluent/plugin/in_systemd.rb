@@ -21,7 +21,7 @@ require 'fluent/plugin/systemd/entry_mutator'
 module Fluent
   module Plugin
     # Fluentd plugin for reading from the systemd journal
-    class SystemdInput < Input
+    class SystemdInput < Input # rubocop:disable Metrics/ClassLength
       Fluent::Plugin.register_input('systemd', self)
 
       helpers :timer, :storage
@@ -63,7 +63,7 @@ module Fluent
 
       def shutdown
         @running = false
-        @journal.close if @journal
+        @journal&.close
         @journal = nil
         @pos_storage = nil
         @mutator = nil
