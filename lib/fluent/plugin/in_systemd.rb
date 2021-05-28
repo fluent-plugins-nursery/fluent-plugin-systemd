@@ -63,6 +63,10 @@ module Fluent
 
       def shutdown
         @running = false
+        @journal.close if @journal
+        @journal = nil
+        @pos_storage = nil
+        @mutator = nil
         super
       end
 
