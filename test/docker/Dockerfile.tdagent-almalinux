@@ -1,8 +1,8 @@
-FROM centos:8
+FROM almalinux:9
 
 RUN rpm --import https://packages.treasuredata.com/GPG-KEY-td-agent \
       && printf "[treasuredata]\nname=TreasureData\nbaseurl=http://packages.treasuredata.com/4/redhat/\$releasever/\$basearch\ngpgcheck=1\ngpgkey=https://packages.treasuredata.com/GPG-KEY-td-agent\n" > /etc/yum.repos.d/td.repo \
-      && yum install -y td-agent make gcc-c++ systemd
+      && dnf install -y td-agent make gcc-c++ systemd
 
 ENV PATH /opt/td-agent/bin/:$PATH
 RUN td-agent-gem install bundler
