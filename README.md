@@ -212,13 +212,13 @@ On Debian or Ubuntu you might need to install the libsystemd0 package:
 apt-get install libsystemd0
 ```
 
-On CentOS or RHEL you might need to install the systemd package:
+On AlmaLinux or RHEL you might need to install the systemd package:
 
 ```
 yum install -y systemd
 ```
 
-If you want to do this in a CentOS docker image you might first need to remove the `fakesystemd` package.
+If you want to do this in a AlmaLinux docker image you might first need to remove the `fakesystemd` package.
 
 ```
 yum remove -y fakesystemd
