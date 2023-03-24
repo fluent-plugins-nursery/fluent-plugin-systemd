@@ -262,8 +262,10 @@ class SystemdInputTest < Test::Unit::TestCase
   end
 
   def test_reading_from_a_journal_with_corrupted_entries
+    # One corrupted entry exists in 461 entries. (The 3rd entry is corrupted.)
     d = create_driver(corrupt_entries_config)
     d.run(expect_emits: 460)
-    assert_equal 460, d.events.size
+    # Since libsystemd v250, it can read this corrupted record.
+    assert { d.events.size == 460 or d.events.size == 461 }
   end
 end
