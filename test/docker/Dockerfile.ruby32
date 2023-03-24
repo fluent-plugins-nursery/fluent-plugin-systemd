@@ -1,0 +1,7 @@
+FROM ruby:3.2
+
+WORKDIR /usr/local/src
+
+COPY . .
+RUN bundle install -j4 -r3
+RUN bundle exec rake test TESTOPTS="-v"
