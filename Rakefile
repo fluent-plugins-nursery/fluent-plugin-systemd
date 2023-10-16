@@ -16,7 +16,7 @@ task build: 'docker:test'
 task default: :rubocop
 
 namespace :docker do
-  distros = %i[ubuntu tdagent-ubuntu tdagent-centos]
+  distros = %i[ubuntu tdagent-ubuntu tdagent-almalinux]
   task test: distros
 
   distros.each do |distro|

@@ -18,7 +18,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           file: test/docker/Dockerfile.ubuntu
-  tdagent:
+  tdagent-deb:
     runs-on: ubuntu-latest
     steps:
       -
@@ -32,7 +32,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           file: test/docker/Dockerfile.tdagent-ubuntu
-  centos:
+  tdagent-rpm:
     runs-on: ubuntu-latest
     steps:
       -
@@ -45,7 +45,7 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          file: test/docker/Dockerfile.tdagent-centos
+          file: test/docker/Dockerfile.tdagent-almalinux
   ruby32:
     runs-on: ubuntu-latest
     steps:
