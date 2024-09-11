@@ -18,6 +18,10 @@ Join the #plugin-systemd channel on the [Fluentd Slack](http://slack.fluentd.org
 | > 0.1.0 | >= 0.14.11, < 2 | 3 | >= 2.1 |
 | 0.0.x | ~> 0.12.0       | 2 | >= 1.9  |
 
+|fluent-plugin-systemd|fluentd|fluent-package|ruby|
+|----|----|----|----|
+| >= 1.1.0 | >= 0.14.11, < 2 | 5 | >= 3.0 |
+
 * The 1.x.x series is developed from this branch (master)
 * The 0.0.x series (compatible with fluentd v0.12, and td-agent 2) is maintained on the [0.0.x branch](https://github.com/reevoo/fluent-plugin-systemd/tree/0.0.x)
 
