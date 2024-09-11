@@ -22,7 +22,7 @@ namespace :docker do
   distros.each do |distro|
     task distro do
       puts "testing on #{distro}"
-      sh "sudo docker build . -f test/docker/Dockerfile.#{distro}"
+      sh "docker build . -f test/docker/Dockerfile.#{distro}"
     end
   end
 end
