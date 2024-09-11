@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 RUN apt-get update -q \
       && apt-get install -qy --no-install-recommends \
@@ -8,7 +8,7 @@ RUN apt-get update -q \
         gnupg \
         libsystemd0 \
       && curl https://packages.treasuredata.com/GPG-KEY-td-agent | apt-key add - \
-      && echo "deb http://packages.treasuredata.com/4/ubuntu/focal/ focal contrib" > /etc/apt/sources.list.d/treasure-data.list \
+      && echo "deb http://packages.treasuredata.com/4/ubuntu/jammy/ jammy contrib" > /etc/apt/sources.list.d/treasure-data.list \
       && apt-get update \
       && apt-get install -y td-agent \
       && apt-get clean \

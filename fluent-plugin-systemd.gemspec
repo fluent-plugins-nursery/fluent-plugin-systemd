@@ -24,5 +24,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '1.13.0'
 
   spec.add_runtime_dependency 'fluentd', ['>= 0.14.11', '< 2']
-  spec.add_runtime_dependency 'systemd-journal', '~> 1.4.2'
+  spec.add_runtime_dependency 'systemd-journal', '~> 2.0.0'
 end
