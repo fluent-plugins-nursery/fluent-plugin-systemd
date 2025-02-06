@@ -6,62 +6,31 @@ on:
       - master
 
 jobs:
-  ubuntu:
+  docker:
+    name: ${{ matrix.target.env }}
+    strategy:
+      matrix:
+        target:
+          - env: ubuntu
+            dockerfile: Dockerfile.ubuntu
+          - env: td-agent-deb
+            dockerfile: Dockerfile.tdagent-ubuntu
+          - env: td-agent-rpm
+            dockerfile: Dockerfile.tdagent-almalinux
+          - env: ruby32
+            dockerfile: Dockerfile.ruby32
+          - env: ruby34
+            dockerfile: Dockerfile.ruby34
     runs-on: ubuntu-latest
     steps:
-      -
-        uses: actions/checkout@v3
-      -
-        name: Set up Docker Buildx
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      -
-        name: Build and push
+      - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v6
         with:
-          file: test/docker/Dockerfile.ubuntu
-  tdagent-deb:
-    runs-on: ubuntu-latest
-    steps:
-      -
-        uses: actions/checkout@v3
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      -
-        name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v6
-        with:
-          file: test/docker/Dockerfile.tdagent-ubuntu
-  tdagent-rpm:
-    runs-on: ubuntu-latest
-    steps:
-      -
-        uses: actions/checkout@v4
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      -
-        name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v6
-        with:
-          file: test/docker/Dockerfile.tdagent-almalinux
-  ruby32:
-    runs-on: ubuntu-latest
-    steps:
-      -
-        uses: actions/checkout@v4
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      -
-        name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v6
-        with:
-          file: test/docker/Dockerfile.ruby32
+          file: test/docker/${{ matrix.target.dockerfile }}
   rubocop:
     runs-on: ubuntu-latest
     steps:
