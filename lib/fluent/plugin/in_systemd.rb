@@ -75,7 +75,7 @@ module Fluent
       def init_journal
         # TODO: ruby 2.3
         @journal.close if @journal # rubocop:disable Style/SafeNavigation
-        @journal = Systemd::Journal.new(path: @path)
+        @journal = Systemd::Journal.new(path: @path, auto_reopen: true)
         @journal.filter(*(@matches || @filters))
         seek
         true
