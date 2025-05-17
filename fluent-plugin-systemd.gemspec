@@ -12,11 +12,15 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Input plugin to read from systemd journal.'
   spec.description   = 'This is a fluentd input plugin. It reads logs from the systemd journal.'
-  spec.homepage      = 'https://github.com/reevoo/fluent-plugin-systemd'
+  spec.homepage      = 'https://github.com/fluent-plugins-nursery/fluent-plugin-systemd'
   spec.license       = 'Apache-2.0'
 
   spec.files         = Dir['lib/**/**.rb', 'README.md', 'LICENCE']
   spec.require_paths = ['lib']
+
+  spec.metadata['homepage_uri'] = spec.homepage
+  spec.metadata['source_code_uri'] = 'https://github.com/fluent-plugins-nursery/fluent-plugin-systemd'
+  spec.metadata['bug_tracker_uri'] = 'https://github.com/fluent-plugins-nursery/fluent-plugin-systemd/issues'
 
   spec.add_development_dependency 'bundler', '> 1.10'
   spec.add_development_dependency 'rake'
