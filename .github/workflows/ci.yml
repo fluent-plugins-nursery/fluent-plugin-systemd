@@ -2,10 +2,39 @@ name: CI
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: '0 0 1 * *'
 
 jobs:
+  ruby-versions:
+    uses: ruby/actions/.github/workflows/ruby_versions.yml@master
+    with:
+      engine: cruby
+      min_version: 3.2
+  docker-ruby-base:
+    needs: ruby-versions
+    name: Ruby ${{ matrix.ruby }}
+    strategy:
+      matrix:
+        ruby: ${{ fromJson(needs.ruby-versions.outputs.versions) }}
+        exclude:
+          - ruby: head
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        with:
+          file: test/docker/Dockerfile.ruby-base
+          build-args: |
+            RUBY_VERSION=${{ matrix.ruby }}
+
   docker:
     name: ${{ matrix.target.env }}
     strategy:
@@ -17,10 +46,6 @@ jobs:
             dockerfile: Dockerfile.tdagent-ubuntu
           - env: td-agent-rpm
             dockerfile: Dockerfile.tdagent-almalinux
-          - env: ruby32
-            dockerfile: Dockerfile.ruby32
-          - env: ruby34
-            dockerfile: Dockerfile.ruby34
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -31,14 +56,12 @@ jobs:
         uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
         with:
           file: test/docker/${{ matrix.target.dockerfile }}
+
   rubocop:
     runs-on: ubuntu-latest
     steps:
-      -
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      -
-        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
         with:
           bundler-cache: true
-      -
-        run: bundle exec rake rubocop
+      - run: bundle exec rake rubocop
