@@ -50,7 +50,8 @@ module Fluent
       def configure(conf)
         super
         @journal = nil
-        @pos_storage = storage_create(usage: 'positions')
+        config = conf.elements.find { |e| e.name == 'storage' }
+        @pos_storage = storage_create(usage: 'positions', conf: config, default_type: DEFAULT_STORAGE_TYPE)
         @mutator = SystemdEntryMutator.new(**@entry_opts.to_h)
         @mutator.warnings.each { |warning| log.warn(warning) }
       end

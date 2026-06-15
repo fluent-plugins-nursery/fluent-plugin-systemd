@@ -268,4 +268,58 @@ class SystemdInputTest < Test::Unit::TestCase
     # Since libsystemd v250, it can read this corrupted record.
     assert { d.events.size == 460 or d.events.size == 461 }
   end
+
+  def test_configure_storage_with_conf_arg_does_not_raise
+    config = base_config + %(
+      @id in_systemd
+      <storage system_cursor>
+        @type local
+        persistent true
+      </storage>
+    )
+    Dir.mktmpdir('root_dir') do |root_dir|
+      Fluent::SystemConfig.overwrite_system_config('root_dir' => root_dir) do
+        assert_nothing_raised do
+          create_driver(config)
+        end
+      end
+    end
+  end
+
+  def test_storage_path_reflects_conf_arg
+    config = base_config + %(
+      @id in_systemd
+      <storage system_cursor>
+        @type local
+        persistent true
+      </storage>
+    )
+    Dir.mktmpdir('root_dir') do |root_dir|
+      expected = File.join(root_dir, 'worker0', 'in_systemd', 'storage.system_cursor.json')
+      Fluent::SystemConfig.overwrite_system_config('root_dir' => root_dir) do
+        d = create_driver(config)
+        d.run(expect_emits: 1)
+        assert_path_exist expected
+      end
+    end
+  end
+
+  def test_storage_path_without_conf_arg
+    config = base_config + %(
+      read_from_head true
+      @id in_systemd
+      <storage>
+        @type local
+        persistent true
+      </storage>
+    )
+    Dir.mktmpdir('root_dir') do |root_dir|
+      expected = File.join(root_dir, 'worker0', 'in_systemd', 'storage.json')
+      Fluent::SystemConfig.overwrite_system_config('root_dir' => root_dir) do
+        d = create_driver(config)
+        d.run(expect_emits: 1)
+        assert_path_exist expected
+      end
+    end
+  end
 end
