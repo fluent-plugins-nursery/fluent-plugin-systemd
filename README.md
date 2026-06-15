@@ -69,7 +69,9 @@ If you are upgrading to version 1.0 from a previous version of this plugin take 
 
 **`path`**
 
-Path to the systemd journal, defaults to `/var/log/journal`
+Path to the systemd journal **directory**, defaults to `/var/log/journal`.
+
+This must be a directory, not an individual file or a glob pattern — for example, `/var/log/journal/*.journal` will not work. All journal files in the given directory are read automatically.
 
 **`filters`**
 
