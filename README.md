@@ -143,6 +143,13 @@ If true, lowercase all non-mapped fields. Defaults to false.
 
 If true, strip leading underscores from all non-mapped fields. Defaults to false.
 
+Journald reserves the leading underscore for its trusted fields, which a client cannot forge,
+ while a client is free to send a user field with the same name minus the underscore.
+Stripping makes both names collide, so the trusted field wins and the user field of that name is dropped.
+For example, if an entry holds `_SYSTEMD_UNIT` and a client supplied `SYSTEMD_UNIT`,
+the result only holds the trusted value.
+Map the trusted field to another name with `field_map` if you need to keep both.
+
 ### Filter Example
 
 Given a systemd journal source entry:

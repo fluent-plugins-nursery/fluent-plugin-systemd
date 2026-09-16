@@ -103,13 +103,20 @@ module Fluent
       # mapped - Optional hash that represents a previously mapped entry to
       #          which the formatted fields will be added
       def format_fields(entry, mapped = nil)
+        reserved = reserved_field_names(entry)
         entry.each_with_object(mapped || {}) do |(fld, val), formatted_entry|
           # don't mess with explicitly mapped fields
           next if @map_src_fields.include?(fld)
 
-          fld = format_field_name(fld)
+          name = format_field_name(fld)
+          # A client may send `SYSTEMD_UNIT` but never `_SYSTEMD_UNIT`, so the
+          # trusted field keeps the name when stripping underscores makes the
+          # two collide. Otherwise any local process could fake the journal
+          # metadata that the trusted fields are supposed to guarantee.
+          next if !fld.start_with?('_') && reserved.include?(name)
+
           # account for mapping (appending) to an existing systemd field
-          formatted_entry[fld] = join_if_needed([val, mapped[fld]])
+          formatted_entry[name] = join_if_needed([val, mapped[name]])
         end
       end
 
@@ -126,6 +133,17 @@ module Fluent
         return values.first if values.length == 1
 
         values.join(' ')
+      end
+
+      def reserved_field_names(entry)
+        return [] unless @opts.fields_strip_underscores
+
+        entry.each_with_object([]) do |(fld, _val), names|
+          next unless fld.start_with?('_')
+          next if @map_src_fields.include?(fld)
+
+          names << format_field_name(fld)
+        end
       end
 
       def format_field_name(name)
