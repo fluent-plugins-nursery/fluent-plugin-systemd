@@ -34,7 +34,7 @@ module Fluent
     #   "<new_field1>" => ["<source_field1>", "<source_field2>"],
     #   "<new_field2>" => ["<source_field2>"]
     # }
-    class SystemdEntryMutator
+    class SystemdEntryMutator # rubocop:disable Metrics/ClassLength
       Options = Struct.new(
         :field_map,
         :field_map_strict,
