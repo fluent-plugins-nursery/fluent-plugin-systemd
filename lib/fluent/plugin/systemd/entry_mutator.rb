@@ -138,11 +138,19 @@ module Fluent
       def reserved_field_names(entry)
         return [] unless @opts.fields_strip_underscores
 
-        entry.each_with_object([]) do |(fld, _val), names|
-          next unless fld.start_with?('_')
-          next if @map_src_fields.include?(fld)
+        trusted_field_names(entry).each_with_object([]) do |fld, names|
+          name = format_field_name(fld)
+          next if @map_src_fields.include?(fld) && !Array(@opts.field_map[fld]).include?(name)
 
-          names << format_field_name(fld)
+          names << name
+        end
+      end
+
+      # Journald never lets a client send a leading underscore, so the known
+      # trusted names stay reserved even when this entry does not carry them.
+      def trusted_field_names(entry)
+        entry.each_with_object(TRUSTED_FIELDS.dup) do |(fld, _val), flds|
+          flds << fld if fld.start_with?('_')
         end
       end
 
