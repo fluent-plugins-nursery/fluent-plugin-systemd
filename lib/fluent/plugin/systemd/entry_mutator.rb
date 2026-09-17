@@ -15,6 +15,7 @@
 #   limitations under the License.
 
 require 'fluent/config/error'
+require 'systemd/journal/fields'
 
 module Fluent
   module Plugin
@@ -40,6 +41,8 @@ module Fluent
         :fields_lowercase,
         :fields_strip_underscores
       )
+
+      TRUSTED_FIELDS = (Systemd::Journal::TRUSTED_FIELDS + Systemd::Journal::KERNEL_FIELDS).freeze
 
       def self.default_opts
         Options.new({}, false, false, false)
