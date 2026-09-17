@@ -41,6 +41,15 @@ class EntryTestData
   # string json form of `FIELD_MAP`
   FIELD_MAP_JSON = JSON.generate(FIELD_MAP).freeze
 
+  # entry where a client sent user fields named after the trusted fields
+  SPOOFED_ENTRY = {
+    '_SYSTEMD_UNIT' => 'user@1000.service',
+    'SYSTEMD_UNIT' => 'sshd.service',
+    '_PID' => '777',
+    'PID' => '1',
+    'MESSAGE' => 'Accepted publickey for root'
+  }.freeze
+
   # expected entry mutation results
   EXPECTED = {
     no_transform: {
@@ -175,6 +184,34 @@ class EntryMutatorTest < Test::Unit::TestCase
     ]
   }
 
+  # mutate test data for `SPOOFED_ENTRY`, same form as `@mutate_tests`.
+  # A mutator without options skips formatting, so the "no stripping" case
+  # turns on `fields_lowercase` to reach the same code with stripping off.
+  @spoofed_tests = {
+    trusted_field_wins: [
+      { fields_strip_underscores: true },
+      { 'SYSTEMD_UNIT' => 'user@1000.service', 'PID' => '777', 'MESSAGE' => 'Accepted publickey for root' }
+    ],
+    trusted_field_wins_lowercased: [
+      { fields_strip_underscores: true, fields_lowercase: true },
+      { 'systemd_unit' => 'user@1000.service', 'pid' => '777', 'message' => 'Accepted publickey for root' }
+    ],
+    user_fields_kept_without_stripping: [
+      { fields_lowercase: true },
+      {
+        '_systemd_unit' => 'user@1000.service', 'systemd_unit' => 'sshd.service',
+        '_pid' => '777', 'pid' => '1', 'message' => 'Accepted publickey for root'
+      }
+    ],
+    mapped_trusted_field_frees_the_name: [
+      { field_map: { '_SYSTEMD_UNIT' => 'unit' }, fields_strip_underscores: true },
+      {
+        'unit' => 'user@1000.service', 'SYSTEMD_UNIT' => 'sshd.service',
+        'PID' => '777', 'MESSAGE' => 'Accepted publickey for root'
+      }
+    ]
+  }
+
   data(@validation_tests)
   def test_validation(opt)
     assert_raise Fluent::ConfigError do
@@ -211,6 +248,16 @@ class EntryMutatorTest < Test::Unit::TestCase
     options, expected = data
     m = Fluent::Plugin::SystemdEntryMutator.new(**options)
     mutated = m.run(EntryTestData::ENTRY.to_h)
+    assert_equal(expected, mutated)
+  end
+
+  # tests using an entry with user fields named after the trusted fields
+
+  data(@spoofed_tests)
+  def test_mutate_with_spoofed_entry(data)
+    options, expected = data
+    m = Fluent::Plugin::SystemdEntryMutator.new(**options)
+    mutated = m.run(EntryTestData::SPOOFED_ENTRY)
     assert_equal(expected, mutated)
   end
 end

@@ -15,6 +15,7 @@
 #   limitations under the License.
 
 require 'fluent/config/error'
+require 'systemd/journal/fields'
 
 module Fluent
   module Plugin
@@ -33,13 +34,15 @@ module Fluent
     #   "<new_field1>" => ["<source_field1>", "<source_field2>"],
     #   "<new_field2>" => ["<source_field2>"]
     # }
-    class SystemdEntryMutator
+    class SystemdEntryMutator # rubocop:disable Metrics/ClassLength
       Options = Struct.new(
         :field_map,
         :field_map_strict,
         :fields_lowercase,
         :fields_strip_underscores
       )
+
+      TRUSTED_FIELDS = (Systemd::Journal::TRUSTED_FIELDS + Systemd::Journal::KERNEL_FIELDS).freeze
 
       def self.default_opts
         Options.new({}, false, false, false)
@@ -103,13 +106,20 @@ module Fluent
       # mapped - Optional hash that represents a previously mapped entry to
       #          which the formatted fields will be added
       def format_fields(entry, mapped = nil)
+        reserved = reserved_field_names(entry)
         entry.each_with_object(mapped || {}) do |(fld, val), formatted_entry|
           # don't mess with explicitly mapped fields
           next if @map_src_fields.include?(fld)
 
-          fld = format_field_name(fld)
+          name = format_field_name(fld)
+          # A client may send `SYSTEMD_UNIT` but never `_SYSTEMD_UNIT`, so the
+          # trusted field keeps the name when stripping underscores makes the
+          # two collide. Otherwise any local process could fake the journal
+          # metadata that the trusted fields are supposed to guarantee.
+          next if !fld.start_with?('_') && reserved.include?(name)
+
           # account for mapping (appending) to an existing systemd field
-          formatted_entry[fld] = join_if_needed([val, mapped[fld]])
+          formatted_entry[name] = join_if_needed([val, mapped[name]])
         end
       end
 
@@ -126,6 +136,25 @@ module Fluent
         return values.first if values.length == 1
 
         values.join(' ')
+      end
+
+      def reserved_field_names(entry)
+        return [] unless @opts.fields_strip_underscores
+
+        trusted_field_names(entry).each_with_object([]) do |fld, names|
+          name = format_field_name(fld)
+          next if @map_src_fields.include?(fld) && !Array(@opts.field_map[fld]).include?(name)
+
+          names << name
+        end
+      end
+
+      # Journald never lets a client send a leading underscore, so the known
+      # trusted names stay reserved even when this entry does not carry them.
+      def trusted_field_names(entry)
+        entry.each_with_object(TRUSTED_FIELDS.dup) do |(fld, _val), flds|
+          flds << fld if fld.start_with?('_')
+        end
       end
 
       def format_field_name(name)
